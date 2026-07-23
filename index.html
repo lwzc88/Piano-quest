@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" class="h-full select-none overflow-hidden">
+<html lang="en" class="h-full select-none">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
@@ -8,7 +8,6 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Piano Quest">
-    <meta name="mobile-web-app-capable" content="yes">
 
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Quicksand:wght@600;700;800&display=swap" rel="stylesheet">
@@ -19,7 +18,10 @@
             -webkit-tap-highlight-color: transparent;
             touch-action: manipulation;
         }
-        body {
+        html, body {
+            height: 100%;
+            height: 100dvh;
+            overflow: hidden;
             font-family: 'Quicksand', sans-serif;
             background: linear-gradient(135deg, #f0fdf4 0%, #e0f2fe 50%, #fef3c7 100%);
             -webkit-user-select: none;
@@ -30,7 +32,7 @@
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         
         .white-key-shadow {
-            box-shadow: 0 4px 0px #cbd5e1, 0 6px 10px rgba(0, 0, 0, 0.08);
+            box-shadow: 0 4px 0px #cbd5e1, 0 4px 6px rgba(0, 0, 0, 0.08);
         }
         .white-key-shadow:active, .white-key-shadow.active {
             transform: translateY(3px);
@@ -38,7 +40,7 @@
             background-color: #f1f5f9 !important;
         }
         .black-key-shadow {
-            box-shadow: 0 3px 0px #0f172a, 0 4px 6px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 3px 0px #0f172a, 0 3px 5px rgba(0, 0, 0, 0.2);
         }
         .black-key-shadow:active, .black-key-shadow.active {
             transform: translateY(2px) scaleX(0.97);
@@ -47,75 +49,73 @@
         }
     </style>
 </head>
-<body class="h-screen w-screen text-slate-800 antialiased flex flex-col justify-between p-2 overflow-hidden">
+<body class="h-full w-full text-slate-800 antialiased flex flex-col justify-between p-2 pt-3 pb-3 gap-2 box-border">
 
     <!-- Sound Activation Overlay -->
-    <div id="audioUnlockOverlay" class="fixed inset-0 bg-indigo-950/80 backdrop-blur-md z-[100] flex flex-col items-center justify-center p-4 text-center">
+    <div id="audioUnlockOverlay" class="fixed inset-0 bg-indigo-950/85 backdrop-blur-md z-[100] flex flex-col items-center justify-center p-4 text-center">
         <div class="bg-white rounded-3xl p-6 max-w-sm shadow-2xl border-4 border-amber-300 space-y-3">
             <div class="text-4xl">🎹✨</div>
             <h2 class="text-xl font-black header-font text-indigo-700">Ready to Play?</h2>
-            <p class="text-xs font-bold text-slate-600">Tap below to turn on piano sounds for your iPad!</p>
-            <button onclick="unlockAudioContext()" class="w-full py-3 bg-gradient-to-r from-pink-500 to-indigo-600 text-white font-black text-sm rounded-2xl shadow-md active:scale-95 transition">
+            <p class="text-xs font-bold text-slate-600">Tap below to turn on piano sound for iPad!</p>
+            <button id="btnUnlockAudio" class="w-full py-3 bg-gradient-to-r from-pink-500 to-indigo-600 text-white font-black text-sm rounded-2xl shadow-md active:scale-95 transition">
                 Start Quest! 🚀
             </button>
         </div>
     </div>
 
-    <!-- Compact Header -->
-    <header class="bg-white/90 backdrop-blur-md border-b-2 border-amber-300 rounded-2xl px-3 py-1 shrink-0 shadow-sm flex items-center justify-between gap-2">
-        <div class="flex items-center gap-2">
+    <!-- Header bar with dynamic iPad viewport spacing -->
+    <header class="bg-white/95 backdrop-blur-md border-b-2 border-amber-300 rounded-xl px-2.5 py-1 shrink-0 shadow-sm flex items-center justify-between gap-1.5 z-40">
+        <div class="flex items-center gap-1.5 shrink-0">
             <div class="p-1 bg-gradient-to-tr from-pink-400 to-indigo-500 text-white rounded-lg shadow-sm">
                 <i class="fa-solid fa-music text-xs"></i>
             </div>
-            <div>
-                <h1 class="text-sm font-black header-font text-indigo-600 tracking-tight">Piano Quest! 🎹🌟</h1>
-            </div>
+            <h1 class="text-xs sm:text-sm font-black header-font text-indigo-600 tracking-tight">Piano Quest! 🎹</h1>
         </div>
 
-        <!-- Compact Mode Selectors -->
-        <div class="flex items-center gap-1.5">
-            <button onclick="switchTab('explore')" id="tab-explore" class="px-2.5 py-1 rounded-xl font-black text-[11px] header-font transition bg-indigo-600 text-white shadow-sm">
+        <!-- Mode Nav Buttons -->
+        <div class="flex items-center gap-1 shrink-0">
+            <button onclick="switchTab('explore')" id="tab-explore" class="px-2 py-1 rounded-lg font-black text-[10px] header-font transition bg-indigo-600 text-white shadow-sm">
                 1. Explore
             </button>
-            <button onclick="switchTab('flashcards')" id="tab-flashcards" class="px-2.5 py-1 rounded-xl font-black text-[11px] header-font transition bg-white text-slate-600 hover:bg-indigo-50">
+            <button onclick="switchTab('flashcards')" id="tab-flashcards" class="px-2 py-1 rounded-lg font-black text-[10px] header-font transition bg-white text-slate-600 hover:bg-indigo-50">
                 2. Note Matcher
             </button>
-            <button onclick="switchTab('keyfinder')" id="tab-keyfinder" class="px-2.5 py-1 rounded-xl font-black text-[11px] header-font transition bg-white text-slate-600 hover:bg-indigo-50">
+            <button onclick="switchTab('keyfinder')" id="tab-keyfinder" class="px-2 py-1 rounded-lg font-black text-[10px] header-font transition bg-white text-slate-600 hover:bg-indigo-50">
                 3. Key Finder
             </button>
-            <button onclick="switchTab('melodyquest')" id="tab-melodyquest" class="px-2.5 py-1 rounded-xl font-black text-[11px] header-font transition bg-white text-slate-600 hover:bg-indigo-50">
+            <button onclick="switchTab('melodyquest')" id="tab-melodyquest" class="px-2 py-1 rounded-lg font-black text-[10px] header-font transition bg-white text-slate-600 hover:bg-indigo-50">
                 4. Melody Quest
             </button>
         </div>
 
         <!-- Star Counter -->
-        <div class="flex items-center gap-2 bg-indigo-50 border border-indigo-100 px-2.5 py-0.5 rounded-lg">
-            <div class="flex items-center gap-1 text-amber-500">
+        <div class="flex items-center gap-1.5 bg-indigo-50 border border-indigo-100 px-2 py-0.5 rounded-lg shrink-0">
+            <div class="flex items-center gap-0.5 text-amber-500">
                 <i class="fa-solid fa-star text-xs"></i>
                 <span id="starCounter" class="font-extrabold text-xs">0</span>
             </div>
             <div class="h-3 w-0.5 bg-indigo-200"></div>
-            <div class="flex items-center gap-1 text-pink-500">
+            <div class="flex items-center gap-0.5 text-pink-500">
                 <i class="fa-solid fa-fire text-xs"></i>
                 <span id="streakCounter" class="font-extrabold text-xs">0</span>
             </div>
         </div>
     </header>
 
-    <!-- Center Workspace -->
-    <div class="flex-1 grid grid-cols-12 gap-2 my-1 items-stretch overflow-hidden min-h-0">
+    <!-- Balanced Main Workspace Proportions -->
+    <div class="flex-1 grid grid-cols-12 gap-2 min-h-0 overflow-hidden items-stretch">
         
-        <!-- Left Box: Music Staff Canvas -->
-        <div class="col-span-7 bg-white border-2 border-indigo-100 rounded-2xl shadow-sm p-2 flex flex-col justify-between overflow-hidden relative">
+        <!-- Left: Music Staff Canvas Frame -->
+        <div class="col-span-7 bg-white border-2 border-indigo-100 rounded-xl shadow-sm p-2 flex flex-col justify-between overflow-hidden relative">
             <div class="flex items-center justify-between gap-1 border-b border-slate-100 pb-1 shrink-0">
                 <div class="flex items-center gap-1">
-                    <span class="text-[10px] font-black text-slate-400 uppercase">Clef:</span>
-                    <button onclick="setClef('treble')" id="btnClefTreble" class="px-2 py-0.5 text-[10px] font-bold rounded-md bg-indigo-100 text-indigo-700">Treble 𝄞</button>
-                    <button onclick="setClef('bass')" id="btnClefBass" class="px-2 py-0.5 text-[10px] font-bold rounded-md text-slate-500">Bass 𝄢</button>
+                    <span class="text-[9px] font-black text-slate-400 uppercase">Clef:</span>
+                    <button onclick="setClef('treble')" id="btnClefTreble" class="px-2 py-0.5 text-[9px] font-bold rounded bg-indigo-100 text-indigo-700">Treble 𝄞</button>
+                    <button onclick="setClef('bass')" id="btnClefBass" class="px-2 py-0.5 text-[9px] font-bold rounded text-slate-500">Bass 𝄢</button>
                 </div>
                 <div class="flex items-center gap-1">
-                    <span class="text-[10px] font-black text-slate-400 uppercase">Level:</span>
-                    <select id="rangeSelector" onchange="setLevel(this.value)" class="bg-indigo-50 text-indigo-700 rounded-md px-1.5 py-0.5 text-[10px] font-extrabold outline-none">
+                    <span class="text-[9px] font-black text-slate-400 uppercase">Level:</span>
+                    <select id="rangeSelector" onchange="setLevel(this.value)" class="bg-indigo-50 text-indigo-700 rounded px-1 py-0.5 text-[9px] font-extrabold outline-none">
                         <option value="level1">Lvl 1 (C4-G4)</option>
                         <option value="level2">Lvl 2 (C4-C5)</option>
                         <option value="level3">Lvl 3 (C3-B3)</option>
@@ -124,89 +124,98 @@
                 </div>
             </div>
 
-            <!-- Canvas Container -->
-            <div class="flex-1 flex items-center justify-center bg-slate-50/50 rounded-xl my-1 relative overflow-hidden border border-dashed border-indigo-100">
-                <canvas id="staffCanvas" width="520" height="140" class="max-w-full max-h-full block"></canvas>
-                <div id="incorrectIndicator" class="hidden absolute inset-0 bg-red-500/10 border border-red-500/30 rounded-xl flex items-center justify-center pointer-events-none">
+            <!-- Canvas Block -->
+            <div class="flex-1 flex items-center justify-center bg-slate-50/50 rounded-lg my-1 relative overflow-hidden border border-dashed border-indigo-100 min-h-0">
+                <canvas id="staffCanvas" width="480" height="110" class="max-w-full max-h-full block"></canvas>
+                <div id="incorrectIndicator" class="hidden absolute inset-0 bg-red-500/10 border border-red-500/30 rounded-lg flex items-center justify-center pointer-events-none">
                     <span class="bg-white px-3 py-1 rounded-lg text-xs font-black text-red-600 shadow">Try again! 🧸</span>
                 </div>
             </div>
         </div>
 
-        <!-- Right Box: Mascot & Controls -->
-        <div class="col-span-5 bg-gradient-to-b from-indigo-600 to-purple-600 text-white rounded-2xl shadow-sm p-3 flex flex-col justify-between overflow-hidden">
-            <div class="bg-white text-slate-800 p-2.5 rounded-xl shadow-sm flex items-start gap-2">
-                <span class="text-2xl shrink-0" id="mascotEmoji">🦁</span>
-                <div>
-                    <h4 class="font-black text-[10px] text-indigo-700 uppercase" id="mascotName">Leo the Lion:</h4>
-                    <p id="mascotPrompt" class="text-[11px] font-bold leading-tight text-slate-600 mt-0.5">
-                        Touch any key below to play sounds!
+        <!-- Right: Mascot & Game HUD Controls -->
+        <div class="col-span-5 bg-gradient-to-b from-indigo-600 to-purple-600 text-white rounded-xl shadow-sm p-2.5 flex flex-col justify-between overflow-hidden">
+            <div class="bg-white text-slate-800 p-2 rounded-lg shadow-sm flex items-start gap-2 shrink-0">
+                <span class="text-xl shrink-0" id="mascotEmoji">🦁</span>
+                <div class="overflow-hidden">
+                    <h4 class="font-black text-[9px] text-indigo-700 uppercase" id="mascotName">Leo the Lion:</h4>
+                    <p id="mascotPrompt" class="text-[10px] font-bold leading-tight text-slate-600 mt-0.5">
+                        Touch any piano key below to play sound!
                     </p>
                 </div>
             </div>
 
-            <!-- Note Matcher Buttons (Mode 2) -->
+            <!-- Note Matcher Mode (Mode 2) Buttons -->
             <div id="flashcardControls" class="hidden space-y-1 my-auto">
-                <p class="text-[10px] font-black text-indigo-200 text-center uppercase">Tap the note name:</p>
+                <p class="text-[9px] font-black text-indigo-200 text-center uppercase">Tap the note name:</p>
                 <div class="grid grid-cols-4 gap-1">
-                    <button onclick="makeLetterGuess('C')" class="py-2.5 bg-white active:bg-amber-100 text-indigo-800 font-black text-sm rounded-lg shadow-sm">C</button>
-                    <button onclick="makeLetterGuess('D')" class="py-2.5 bg-white active:bg-amber-100 text-indigo-800 font-black text-sm rounded-lg shadow-sm">D</button>
-                    <button onclick="makeLetterGuess('E')" class="py-2.5 bg-white active:bg-amber-100 text-indigo-800 font-black text-sm rounded-lg shadow-sm">E</button>
-                    <button onclick="makeLetterGuess('F')" class="py-2.5 bg-white active:bg-amber-100 text-indigo-800 font-black text-sm rounded-lg shadow-sm">F</button>
-                    <button onclick="makeLetterGuess('G')" class="py-2.5 bg-white active:bg-amber-100 text-indigo-800 font-black text-sm rounded-lg shadow-sm">G</button>
-                    <button onclick="makeLetterGuess('A')" class="py-2.5 bg-white active:bg-amber-100 text-indigo-800 font-black text-sm rounded-lg shadow-sm">A</button>
-                    <button onclick="makeLetterGuess('B')" class="py-2.5 bg-white active:bg-amber-100 text-indigo-800 font-black text-sm rounded-lg shadow-sm">B</button>
-                    <button onclick="chooseNewTarget()" class="py-2.5 bg-purple-400 text-white font-extrabold text-[10px] rounded-lg shadow-sm">Skip</button>
+                    <button onclick="makeLetterGuess('C')" class="py-2 bg-white active:bg-amber-100 text-indigo-800 font-black text-xs rounded shadow-sm">C</button>
+                    <button onclick="makeLetterGuess('D')" class="py-2 bg-white active:bg-amber-100 text-indigo-800 font-black text-xs rounded shadow-sm">D</button>
+                    <button onclick="makeLetterGuess('E')" class="py-2 bg-white active:bg-amber-100 text-indigo-800 font-black text-xs rounded shadow-sm">E</button>
+                    <button onclick="makeLetterGuess('F')" class="py-2 bg-white active:bg-amber-100 text-indigo-800 font-black text-xs rounded shadow-sm">F</button>
+                    <button onclick="makeLetterGuess('G')" class="py-2 bg-white active:bg-amber-100 text-indigo-800 font-black text-xs rounded shadow-sm">G</button>
+                    <button onclick="makeLetterGuess('A')" class="py-2 bg-white active:bg-amber-100 text-indigo-800 font-black text-xs rounded shadow-sm">A</button>
+                    <button onclick="makeLetterGuess('B')" class="py-2 bg-white active:bg-amber-100 text-indigo-800 font-black text-xs rounded shadow-sm">B</button>
+                    <button onclick="chooseNewTarget()" class="py-2 bg-purple-400 text-white font-extrabold text-[9px] rounded shadow-sm">Skip</button>
                 </div>
             </div>
 
             <!-- Key Finder HUD (Mode 3) -->
-            <div id="keyfinderHUD" class="hidden bg-indigo-950/40 p-2.5 rounded-xl text-center my-auto border border-indigo-300/20">
-                <p class="text-[10px] font-black text-indigo-200 uppercase">Key Finder Challenge</p>
+            <div id="keyfinderHUD" class="hidden bg-indigo-950/40 p-2 rounded-lg text-center my-auto border border-indigo-300/20">
+                <p class="text-[9px] font-black text-indigo-200 uppercase">Key Finder Challenge</p>
                 <p class="text-xs font-black text-amber-300 mt-0.5">Find & tap the key on the piano!</p>
             </div>
 
-            <!-- Melody Quest HUD (Mode 4) -->
-            <div id="melodyquestHUD" class="hidden bg-indigo-950/40 p-2 rounded-xl text-center my-auto border border-indigo-300/20 space-y-1">
+            <!-- Melody Quest HUD (Mode 4) displaying notes phrase by phrase -->
+            <div id="melodyquestHUD" class="hidden bg-indigo-950/40 p-2 rounded-lg text-center my-auto border border-indigo-300/20 space-y-1">
                 <p id="songQuestTitle" class="text-xs font-black text-yellow-300">Song Title</p>
-                <div id="melodySequenceWrapper" class="flex items-center justify-center gap-1"></div>
-                <button onclick="skipSong()" class="px-2 py-0.5 bg-purple-500/60 text-white font-bold text-[9px] rounded-md">Skip Song</button>
+                <div id="melodySequenceWrapper" class="flex items-center justify-center gap-1 py-0.5"></div>
+                <button onclick="skipSong()" class="px-2 py-0.5 bg-purple-500/60 text-white font-bold text-[9px] rounded">Skip Song</button>
             </div>
         </div>
     </div>
 
     <!-- Piano Keyboard Section -->
-    <div id="pianoSection" class="bg-white border-2 border-indigo-100 rounded-2xl shadow-sm px-2 py-1.5 shrink-0">
-        <div id="pianoContainer" class="flex justify-center relative select-none min-w-[580px] h-[135px]"></div>
+    <div id="pianoSection" class="bg-white border-2 border-indigo-100 rounded-xl shadow-sm px-1.5 py-1 shrink-0 h-[115px] z-30">
+        <div id="pianoContainer" class="flex justify-center relative select-none min-w-[540px] h-full"></div>
     </div>
 
     <script>
         let audioCtx = null;
 
-        function getAudioContext() {
+        function initAudioEngine() {
             if (!audioCtx) {
-                const AudioContextClass = window.AudioContext || window.webkitAudioContext;
-                audioCtx = new AudioContextClass();
+                const AudioCtxClass = window.AudioContext || window.webkitAudioContext;
+                if (AudioCtxClass) {
+                    audioCtx = new AudioCtxClass();
+                }
             }
-            if (audioCtx.state === 'suspended') {
+            if (audioCtx && audioCtx.state === 'suspended') {
                 audioCtx.resume();
             }
             return audioCtx;
         }
 
         function unlockAudioContext() {
-            const ctx = getAudioContext();
-            const buffer = ctx.createBuffer(1, 1, 22050);
-            const source = ctx.createBufferSource();
-            source.buffer = buffer;
-            source.connect(ctx.destination);
-            source.start(0);
+            const ctx = initAudioEngine();
+            if (ctx) {
+                const buffer = ctx.createBuffer(1, 1, 22050);
+                const source = ctx.createBufferSource();
+                source.buffer = buffer;
+                source.connect(ctx.destination);
+                source.start(0);
+            }
             document.getElementById('audioUnlockOverlay').style.display = 'none';
         }
 
-        function playSynthNote(freq) {
+        document.getElementById('btnUnlockAudio').addEventListener('click', unlockAudioContext);
+        document.getElementById('audioUnlockOverlay').addEventListener('touchstart', unlockAudioContext, { passive: true });
+
+        function playNoteAudio(freq) {
             try {
-                const ctx = getAudioContext();
+                const ctx = initAudioEngine();
+                if (!ctx) return;
+
                 const now = ctx.currentTime;
                 const osc = ctx.createOscillator();
                 const gain = ctx.createGain();
@@ -215,28 +224,30 @@
                 osc.frequency.setValueAtTime(freq, now);
 
                 gain.gain.setValueAtTime(0, now);
-                gain.gain.linearRampToValueAtTime(0.3, now + 0.02);
-                gain.gain.exponentialRampToValueAtTime(0.001, now + 1.0);
+                gain.gain.linearRampToValueAtTime(0.35, now + 0.02);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.9);
 
                 osc.connect(gain);
                 gain.connect(ctx.destination);
 
                 osc.start(now);
-                osc.stop(now + 1.0);
+                osc.stop(now + 0.95);
             } catch (e) {}
         }
 
-        function playSoundFx(type) {
+        function playAudioFx(type) {
             try {
-                const ctx = getAudioContext();
+                const ctx = initAudioEngine();
+                if (!ctx) return;
                 const now = ctx.currentTime;
+
                 if (type === 'success') {
                     [261.63, 329.63, 392.00, 523.25].forEach((f, i) => {
                         const osc = ctx.createOscillator();
                         const gain = ctx.createGain();
                         osc.type = 'sine';
                         osc.frequency.setValueAtTime(f, now + i * 0.06);
-                        gain.gain.setValueAtTime(0.15, now + i * 0.06);
+                        gain.gain.setValueAtTime(0.2, now + i * 0.06);
                         gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.06 + 0.3);
                         osc.connect(gain);
                         gain.connect(ctx.destination);
@@ -249,7 +260,7 @@
                     osc.type = 'sawtooth';
                     osc.frequency.setValueAtTime(150, now);
                     osc.frequency.exponentialRampToValueAtTime(110, now + 0.2);
-                    gain.gain.setValueAtTime(0.15, now);
+                    gain.gain.setValueAtTime(0.2, now);
                     gain.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
                     osc.connect(gain);
                     gain.connect(ctx.destination);
@@ -295,10 +306,20 @@
         };
 
         const SONG_QUESTS = {
-            'level1': [{ title: "Mary Had a Little Lamb 🐑", sequence: ['E4', 'D4', 'C4', 'D4', 'E4', 'E4', 'E4', 'D4', 'D4', 'D4', 'E4', 'G4', 'G4'] }],
-            'level2': [{ title: "Twinkle Twinkle Little Star ⭐️", sequence: ['C4', 'C4', 'G4', 'G4', 'A4', 'A4', 'G4', 'F4', 'F4', 'E4', 'E4', 'D4', 'D4', 'C4'] }],
-            'level3': [{ title: "Low Sea Explorer 🐙", sequence: ['C3', 'C3', 'G3', 'G3', 'A3', 'A3', 'G3', 'F3', 'F3', 'E3', 'E3', 'D3', 'D3', 'C3'] }],
-            'level4': [{ title: "Frere Jacques 🔔", sequence: ['C4', 'D4', 'E4', 'C4', 'C4', 'D4', 'E4', 'C4', 'E4', 'F4', 'G4'] }]
+            'level1': [
+                { title: "Mary Had a Little Lamb 🐑", sequence: ['E4', 'D4', 'C4', 'D4', 'E4', 'E4', 'E4', 'D4', 'D4', 'D4', 'E4', 'G4', 'G4'] },
+                { title: "Hot Cross Buns 🍞", sequence: ['E4', 'D4', 'C4', 'E4', 'D4', 'C4', 'C4', 'C4', 'C4', 'D4', 'D4', 'D4', 'E4', 'D4', 'C4'] }
+            ],
+            'level2': [
+                { title: "Twinkle Twinkle Little Star ⭐️", sequence: ['C4', 'C4', 'G4', 'G4', 'A4', 'A4', 'G4', 'F4', 'F4', 'E4', 'E4', 'D4', 'D4', 'C4'] },
+                { title: "Ode to Joy 🌸", sequence: ['E4', 'E4', 'F4', 'G4', 'G4', 'F4', 'E4', 'D4', 'C4', 'C4', 'D4', 'E4', 'E4', 'D4', 'D4'] }
+            ],
+            'level3': [
+                { title: "Low Sea Explorer 🐙", sequence: ['C3', 'C3', 'G3', 'G3', 'A3', 'A3', 'G3', 'F3', 'F3', 'E3', 'E3', 'D3', 'D3', 'C3'] }
+            ],
+            'level4': [
+                { title: "Frere Jacques 🔔", sequence: ['C4', 'D4', 'E4', 'C4', 'C4', 'D4', 'E4', 'C4', 'E4', 'F4', 'G4'] }
+            ]
         };
 
         let currentMode = 'explore';
@@ -307,6 +328,7 @@
         let selectedNote = PIANO_SCALE.find(n => n.name === 'C4');
         let melodyQuestActiveSong = SONG_QUESTS['level1'][0];
         let melodyQuestProgress = 0;
+        const notesPerPhrase = 4;
         let starCount = 0;
         let streakCount = 0;
 
@@ -317,31 +339,35 @@
 
             whiteKeys.forEach((keyData) => {
                 const whiteKeyNode = document.createElement('div');
-                whiteKeyNode.className = `white-key-shadow relative bg-white border border-slate-300 rounded-b-xl cursor-pointer flex flex-col justify-end items-center pb-2 select-none z-10`;
-                whiteKeyNode.style.width = '38px';
-                whiteKeyNode.style.height = '125px';
+                whiteKeyNode.className = `white-key-shadow relative bg-white border border-slate-300 rounded-b-lg cursor-pointer flex flex-col justify-end items-center pb-1.5 select-none z-10`;
+                whiteKeyNode.style.width = '35px';
+                whiteKeyNode.style.height = '100%';
 
                 const handleTap = (e) => {
                     e.preventDefault();
+                    initAudioEngine();
                     onKeyTouch(keyData);
                 };
                 whiteKeyNode.addEventListener('pointerdown', handleTap);
+                whiteKeyNode.addEventListener('touchstart', handleTap, { passive: false });
 
                 const sharpNeighbors = ['C', 'D', 'F', 'G', 'A'];
                 if (sharpNeighbors.includes(keyData.label) && keyData.name !== 'C5') {
                     const sharpData = PIANO_SCALE.find(n => n.name === `${keyData.label}#${keyData.octave}`);
                     if (sharpData) {
                         const blackKeyNode = document.createElement('div');
-                        blackKeyNode.className = "black-key-shadow absolute top-0 right-0 translate-x-1/2 bg-slate-800 border-b-4 border-slate-950 z-20 rounded-b-lg cursor-pointer select-none";
-                        blackKeyNode.style.width = '24px';
-                        blackKeyNode.style.height = '75px';
+                        blackKeyNode.className = "black-key-shadow absolute top-0 right-0 translate-x-1/2 bg-slate-800 border-b-4 border-slate-950 z-20 rounded-b cursor-pointer select-none";
+                        blackKeyNode.style.width = '22px';
+                        blackKeyNode.style.height = '62%';
 
                         const handleBlackTap = (e) => {
                             e.preventDefault();
                             e.stopPropagation();
+                            initAudioEngine();
                             onKeyTouch(sharpData);
                         };
                         blackKeyNode.addEventListener('pointerdown', handleBlackTap);
+                        blackKeyNode.addEventListener('touchstart', handleBlackTap, { passive: false });
                         whiteKeyNode.appendChild(blackKeyNode);
                     }
                 }
@@ -350,7 +376,7 @@
         }
 
         function onKeyTouch(noteData) {
-            playSynthNote(noteData.freq);
+            playNoteAudio(noteData.freq);
 
             if (currentMode === 'explore') {
                 selectedNote = noteData;
@@ -380,9 +406,10 @@
         }
 
         function makeLetterGuess(letter) {
+            initAudioEngine();
             if (letter === selectedNote.label) {
                 const noteObj = PIANO_SCALE.find(n => n.label === letter && n.octave === selectedNote.octave) || selectedNote;
-                playSynthNote(noteObj.freq);
+                playNoteAudio(noteObj.freq);
                 scoreSuccess();
             } else {
                 scoreMistake();
@@ -394,7 +421,7 @@
             streakCount += 1;
             document.getElementById('starCounter').innerText = starCount;
             document.getElementById('streakCounter').innerText = streakCount;
-            playSoundFx('success');
+            playAudioFx('success');
 
             document.getElementById('mascotPrompt').innerHTML = `<span class="text-emerald-600 font-black">⭐️ Correct! Excellent job!</span>`;
             setTimeout(chooseNewTarget, 1000);
@@ -403,7 +430,7 @@
         function scoreMistake() {
             streakCount = 0;
             document.getElementById('streakCounter').innerText = streakCount;
-            playSoundFx('mistake');
+            playAudioFx('mistake');
 
             const err = document.getElementById('incorrectIndicator');
             err.classList.remove('hidden');
@@ -423,17 +450,24 @@
 
         function setClef(type) {
             currentClef = type;
-            document.getElementById('btnClefTreble').className = type === 'treble' ? "px-2 py-0.5 text-[10px] font-bold rounded-md bg-indigo-100 text-indigo-700" : "px-2 py-0.5 text-[10px] font-bold rounded-md text-slate-500";
-            document.getElementById('btnClefBass').className = type === 'bass' ? "px-2 py-0.5 text-[10px] font-bold rounded-md bg-indigo-100 text-indigo-700" : "px-2 py-0.5 text-[10px] font-bold rounded-md text-slate-500";
+            document.getElementById('btnClefTreble').className = type === 'treble' ? "px-2 py-0.5 text-[9px] font-bold rounded bg-indigo-100 text-indigo-700" : "px-2 py-0.5 text-[9px] font-bold rounded text-slate-500";
+            document.getElementById('btnClefBass').className = type === 'bass' ? "px-2 py-0.5 text-[9px] font-bold rounded bg-indigo-100 text-indigo-700" : "px-2 py-0.5 text-[9px] font-bold rounded text-slate-500";
             drawStaff();
         }
 
         function setLevel(lvl) {
             currentLevel = lvl;
-            chooseNewTarget();
+            if (currentMode === 'melodyquest') {
+                melodyQuestActiveSong = (SONG_QUESTS[currentLevel] || SONG_QUESTS['level1'])[0];
+                melodyQuestProgress = 0;
+                document.getElementById('songQuestTitle').innerText = melodyQuestActiveSong.title;
+                highlightMelodyNextStep();
+            } else {
+                chooseNewTarget();
+            }
         }
 
-        function drawNoteOnStaff(ctx, noteData, noteX, startY, staffSpacing) {
+        function drawSingleNoteHead(ctx, noteData, noteX, startY, staffSpacing, isActive, isPlayed) {
             const bottomStaffY = startY + 4 * staffSpacing;
             const step = (currentClef === 'treble') ? noteData.trebleStep : noteData.bassStep;
             const noteY = bottomStaffY - step * (staffSpacing / 2);
@@ -444,33 +478,51 @@
             if (step <= -2) {
                 for (let s = -2; s >= step; s -= 2) {
                     const ly = bottomStaffY - s * (staffSpacing / 2);
-                    ctx.beginPath(); ctx.moveTo(noteX - 14, ly); ctx.lineTo(noteX + 14, ly); ctx.stroke();
+                    ctx.beginPath(); ctx.moveTo(noteX - 12, ly); ctx.lineTo(noteX + 12, ly); ctx.stroke();
                 }
             }
             if (step >= 10) {
                 for (let s = 10; s <= step; s += 2) {
                     const ly = bottomStaffY - s * (staffSpacing / 2);
-                    ctx.beginPath(); ctx.moveTo(noteX - 14, ly); ctx.lineTo(noteX + 14, ly); ctx.stroke();
+                    ctx.beginPath(); ctx.moveTo(noteX - 12, ly); ctx.lineTo(noteX + 12, ly); ctx.stroke();
                 }
             }
 
-            ctx.fillStyle = '#0f172a';
+            if (currentMode === 'melodyquest') {
+                if (isActive) {
+                    ctx.save();
+                    ctx.shadowColor = '#fbbf24'; ctx.shadowBlur = 10;
+                    ctx.fillStyle = '#db2777';
+                } else if (isPlayed) {
+                    ctx.fillStyle = '#cbd5e1';
+                } else {
+                    ctx.fillStyle = '#0f172a';
+                }
+            } else {
+                ctx.fillStyle = '#0f172a';
+            }
+
             ctx.save();
             ctx.translate(noteX, noteY);
             ctx.rotate(-0.2);
-            ctx.beginPath(); ctx.ellipse(0, 0, 9, 6.5, 0, 0, Math.PI * 2); ctx.fill();
+            ctx.beginPath(); ctx.ellipse(0, 0, 8, 5.5, 0, 0, Math.PI * 2); ctx.fill();
             ctx.restore();
 
-            if (noteData.isBlack) {
-                ctx.font = 'bold 20px Quicksand, sans-serif';
-                ctx.fillText('♯', noteX - 22, noteY + 6);
+            if (isActive && currentMode === 'melodyquest') {
+                ctx.restore();
             }
 
+            if (noteData.isBlack) {
+                ctx.font = 'bold 18px Quicksand, sans-serif';
+                ctx.fillText('♯', noteX - 18, noteY + 5);
+            }
+
+            ctx.strokeStyle = (currentMode === 'melodyquest' && isPlayed) ? '#cbd5e1' : '#0f172a';
             ctx.beginPath();
             if (step >= 4) {
-                ctx.moveTo(noteX - 8, noteY); ctx.lineTo(noteX - 8, noteY + 30);
+                ctx.moveTo(noteX - 7, noteY); ctx.lineTo(noteX - 7, noteY + 26);
             } else {
-                ctx.moveTo(noteX + 8, noteY); ctx.lineTo(noteX + 8, noteY - 30);
+                ctx.moveTo(noteX + 7, noteY); ctx.lineTo(noteX + 7, noteY - 26);
             }
             ctx.stroke();
         }
@@ -481,35 +533,92 @@
             const ctx = canvas.getContext('2d');
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-            const staffSpacing = 12;
-            const startX = 50;
-            const endX = canvas.width - 50;
+            const staffSpacing = 11;
+            const startX = 40;
+            const endX = canvas.width - 40;
             const midY = canvas.height / 2;
             const startY = midY - (staffSpacing * 2);
 
             ctx.strokeStyle = '#818cf8';
-            ctx.lineWidth = 2;
+            ctx.lineWidth = 1.5;
             for (let i = 0; i < 5; i++) {
                 const lineY = startY + i * staffSpacing;
                 ctx.beginPath(); ctx.moveTo(startX, lineY); ctx.lineTo(endX, lineY); ctx.stroke();
             }
 
             ctx.fillStyle = '#6366f1';
-            ctx.font = 'bold 44px Quicksand, Arial';
+            ctx.font = 'bold 38px Quicksand, Arial';
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
-            ctx.fillText(currentClef === 'treble' ? '𝄞' : '𝄢', startX + 25, midY);
+            ctx.fillText(currentClef === 'treble' ? '𝄞' : '𝄢', startX + 20, midY);
 
-            if (selectedNote) {
-                drawNoteOnStaff(ctx, selectedNote, canvas.width / 2, startY, staffSpacing);
+            if (currentMode === 'melodyquest') {
+                const seq = melodyQuestActiveSong.sequence;
+                const phraseIdx = Math.floor(melodyQuestProgress / notesPerPhrase);
+                const startIdx = phraseIdx * notesPerPhrase;
+
+                const startNoteX = 130;
+                const spacingX = 75;
+
+                for (let i = 0; i < notesPerPhrase; i++) {
+                    const seqIdx = startIdx + i;
+                    if (seqIdx >= seq.length) break;
+
+                    const noteData = PIANO_SCALE.find(n => n.name === seq[seqIdx]);
+                    if (!noteData) continue;
+
+                    const noteX = startNoteX + i * spacingX;
+                    const isActive = (seqIdx === melodyQuestProgress);
+                    const isPlayed = (seqIdx < melodyQuestProgress);
+
+                    drawSingleNoteHead(ctx, noteData, noteX, startY, staffSpacing, isActive, isPlayed);
+                }
+            } else if (selectedNote) {
+                drawSingleNoteHead(ctx, selectedNote, canvas.width / 2, startY, staffSpacing, false, false);
             }
         }
 
         function highlightMelodyNextStep() {
             if (currentMode !== 'melodyquest') return;
             const seq = melodyQuestActiveSong.sequence;
-            selectedNote = PIANO_SCALE.find(n => n.name === seq[melodyQuestProgress]);
-            drawStaff();
+            const currentNoteName = seq[melodyQuestProgress];
+            selectedNote = PIANO_SCALE.find(n => n.name === currentNoteName);
+
+            if (selectedNote.octave === 3 && currentClef !== 'bass') setClef('bass');
+            else if (selectedNote.octave >= 4 && currentClef !== 'treble') setClef('treble');
+            else drawStaff();
+
+            const wrapper = document.getElementById('melodySequenceWrapper');
+            wrapper.innerHTML = '';
+            const phraseIdx = Math.floor(melodyQuestProgress / notesPerPhrase);
+            const startIdx = phraseIdx * notesPerPhrase;
+
+            for (let i = 0; i < notesPerPhrase; i++) {
+                const idx = startIdx + i;
+                if (idx >= seq.length) break;
+
+                const dot = document.createElement('span');
+                if (idx < melodyQuestProgress) {
+                    dot.className = "w-5 h-5 bg-emerald-500 text-white rounded-full font-black text-[9px] flex items-center justify-center";
+                    dot.innerText = "✓";
+                } else if (idx === melodyQuestProgress) {
+                    dot.className = "w-6 h-6 bg-pink-500 text-white rounded-full font-black text-[10px] flex items-center justify-center ring-2 ring-amber-300 animate-pulse";
+                    dot.innerText = idx + 1;
+                } else {
+                    dot.className = "w-5 h-5 bg-indigo-900/60 text-indigo-200 rounded-full font-bold text-[9px] flex items-center justify-center";
+                    dot.innerText = idx + 1;
+                }
+                wrapper.appendChild(dot);
+            }
+        }
+
+        function skipSong() {
+            const songList = SONG_QUESTS[currentLevel] || SONG_QUESTS['level1'];
+            const nextIdx = (songList.indexOf(melodyQuestActiveSong) + 1) % songList.length;
+            melodyQuestActiveSong = songList[nextIdx];
+            melodyQuestProgress = 0;
+            document.getElementById('songQuestTitle').innerText = melodyQuestActiveSong.title;
+            highlightMelodyNextStep();
         }
 
         function switchTab(mode) {
@@ -518,9 +627,9 @@
             ['explore', 'flashcards', 'keyfinder', 'melodyquest'].forEach(m => {
                 const btn = document.getElementById(`tab-${m}`);
                 if (m === mode) {
-                    btn.className = "px-2.5 py-1 rounded-xl font-black text-[11px] header-font transition bg-indigo-600 text-white shadow-sm";
+                    btn.className = "px-2 py-1 rounded-lg font-black text-[10px] header-font transition bg-indigo-600 text-white shadow-sm";
                 } else {
-                    btn.className = "px-2.5 py-1 rounded-xl font-black text-[11px] header-font transition bg-white text-slate-600 hover:bg-indigo-50";
+                    btn.className = "px-2 py-1 rounded-lg font-black text-[10px] header-font transition bg-white text-slate-600 hover:bg-indigo-50";
                 }
             });
 
@@ -536,7 +645,7 @@
             document.getElementById('melodyquestHUD').classList.toggle('hidden', mode !== 'melodyquest');
 
             if (mode === 'explore') {
-                document.getElementById('mascotPrompt').innerText = "Touch any piano key below to play sounds!";
+                document.getElementById('mascotPrompt').innerText = "Touch any piano key below to play sound!";
                 selectedNote = PIANO_SCALE.find(n => n.name === 'C4');
                 drawStaff();
             } else if (mode === 'flashcards') {
@@ -548,7 +657,7 @@
             } else if (mode === 'melodyquest') {
                 document.getElementById('mascotPrompt').innerText = "Play each note on the keyboard to complete the song!";
                 melodyQuestProgress = 0;
-                melodyQuestActiveSong = SONG_QUESTS[currentLevel][0];
+                melodyQuestActiveSong = (SONG_QUESTS[currentLevel] || SONG_QUESTS['level1'])[0];
                 document.getElementById('songQuestTitle').innerText = melodyQuestActiveSong.title;
                 highlightMelodyNextStep();
             }
