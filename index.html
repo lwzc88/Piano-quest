@@ -59,7 +59,7 @@
         .animate-pulse-fast { animation: pulse-fast 1s infinite; }
     </style>
 </head>
-<body class="h-full w-full text-slate-800 antialiased flex flex-col justify-between p-2 pt-3 pb-3 gap-2 box-border">
+<body class="h-full w-full text-slate-800 antialiased flex flex-col justify-start p-2 pt-3 pb-3 gap-2 box-border">
 
     <!-- Sound Activation Overlay -->
     <div id="audioUnlockOverlay" class="fixed inset-0 bg-indigo-950/90 backdrop-blur-md z-[100] flex flex-col items-center justify-center p-4 text-center">
@@ -117,8 +117,8 @@
         </div>
     </header>
 
-    <!-- Layout Proportions - Top section reduced height (h-[155px]), Keyboard gets rest of screen -->
-    <div class="grid grid-cols-12 gap-2 shrink-0 h-[155px] overflow-hidden items-stretch">
+    <!-- Top Widgets: Music Staff and Controls (Flexible height for Note Matcher mode) -->
+    <div id="topWidgets" class="grid grid-cols-12 gap-2 shrink-0 h-[155px] overflow-hidden items-stretch transition-all duration-300">
         
         <!-- Left: Music Staff Canvas Frame -->
         <div class="col-span-7 bg-white border-2 border-indigo-100 rounded-xl shadow-sm p-1.5 flex flex-col justify-between overflow-hidden relative">
@@ -141,7 +141,7 @@
 
             <!-- Canvas Block -->
             <div class="flex-1 flex items-center justify-center bg-slate-50/50 rounded-lg relative overflow-hidden border border-dashed border-indigo-100 min-h-0 mt-1">
-                <canvas id="staffCanvas" width="480" height="110" class="max-w-full max-h-full block"></canvas>
+                <canvas id="staffCanvas" width="480" height="110" class="max-w-full max-h-full block w-full h-full object-contain"></canvas>
                 <div id="incorrectIndicator" class="hidden absolute inset-0 bg-red-500/10 border border-red-500/30 rounded-lg flex items-center justify-center pointer-events-none">
                     <span class="bg-white px-3 py-1 rounded-lg text-xs font-black text-red-600 shadow">Try again! 🧸</span>
                 </div>
@@ -149,30 +149,30 @@
         </div>
 
         <!-- Right: Mascot & Game HUD Controls -->
-        <div class="col-span-5 bg-gradient-to-b from-indigo-600 to-purple-600 text-white rounded-xl shadow-sm p-2 flex flex-col justify-between overflow-hidden">
+        <div class="col-span-5 bg-gradient-to-b from-indigo-600 to-purple-600 text-white rounded-xl shadow-sm p-3 flex flex-col justify-between overflow-hidden">
             <!-- Mascot Prompt Box -->
-            <div class="bg-white text-slate-800 p-1.5 rounded-lg shadow-sm flex items-center gap-2 shrink-0">
-                <span class="text-xl shrink-0" id="mascotEmoji">🦁</span>
+            <div class="bg-white text-slate-800 p-2 rounded-lg shadow-sm flex items-center gap-2 shrink-0">
+                <span class="text-xl sm:text-2xl shrink-0" id="mascotEmoji">🦁</span>
                 <div class="overflow-hidden">
-                    <h4 class="font-black text-[9px] text-indigo-700 uppercase leading-none" id="mascotName">Leo the Lion:</h4>
-                    <p id="mascotPrompt" class="text-[10px] font-bold leading-tight text-slate-600 mt-0.5">
+                    <h4 class="font-black text-[10px] text-indigo-700 uppercase leading-none" id="mascotName">Leo the Lion:</h4>
+                    <p id="mascotPrompt" class="text-[11px] font-bold leading-tight text-slate-600 mt-1">
                         Touch any piano key below to play sound!
                     </p>
                 </div>
             </div>
 
             <!-- Note Matcher Mode (Mode 2) Buttons -->
-            <div id="flashcardControls" class="hidden space-y-1 my-auto">
-                <p class="text-[9px] font-black text-indigo-200 text-center uppercase">Tap the note name:</p>
-                <div class="grid grid-cols-4 gap-1">
-                    <button id="btn-C" onclick="makeLetterGuess('C', 'btn-C')" class="letter-btn py-1.5 bg-white text-indigo-800 font-black text-xs rounded shadow-sm">C</button>
-                    <button id="btn-D" onclick="makeLetterGuess('D', 'btn-D')" class="letter-btn py-1.5 bg-white text-indigo-800 font-black text-xs rounded shadow-sm">D</button>
-                    <button id="btn-E" onclick="makeLetterGuess('E', 'btn-E')" class="letter-btn py-1.5 bg-white text-indigo-800 font-black text-xs rounded shadow-sm">E</button>
-                    <button id="btn-F" onclick="makeLetterGuess('F', 'btn-F')" class="letter-btn py-1.5 bg-white text-indigo-800 font-black text-xs rounded shadow-sm">F</button>
-                    <button id="btn-G" onclick="makeLetterGuess('G', 'btn-G')" class="letter-btn py-1.5 bg-white text-indigo-800 font-black text-xs rounded shadow-sm">G</button>
-                    <button id="btn-A" onclick="makeLetterGuess('A', 'btn-A')" class="letter-btn py-1.5 bg-white text-indigo-800 font-black text-xs rounded shadow-sm">A</button>
-                    <button id="btn-B" onclick="makeLetterGuess('B', 'btn-B')" class="letter-btn py-1.5 bg-white text-indigo-800 font-black text-xs rounded shadow-sm">B</button>
-                    <button onclick="chooseNewTarget()" class="py-1.5 bg-purple-400 active:bg-purple-300 text-white font-extrabold text-[9px] rounded shadow-sm">Skip</button>
+            <div id="flashcardControls" class="hidden space-y-2 my-auto w-full">
+                <p class="text-[10px] font-black text-indigo-200 text-center uppercase">Tap the note name:</p>
+                <div class="grid grid-cols-4 gap-2">
+                    <button id="btn-C" onclick="makeLetterGuess('C', 'btn-C')" class="letter-btn py-3 bg-white text-indigo-800 font-black text-sm rounded-lg shadow-sm">C</button>
+                    <button id="btn-D" onclick="makeLetterGuess('D', 'btn-D')" class="letter-btn py-3 bg-white text-indigo-800 font-black text-sm rounded-lg shadow-sm">D</button>
+                    <button id="btn-E" onclick="makeLetterGuess('E', 'btn-E')" class="letter-btn py-3 bg-white text-indigo-800 font-black text-sm rounded-lg shadow-sm">E</button>
+                    <button id="btn-F" onclick="makeLetterGuess('F', 'btn-F')" class="letter-btn py-3 bg-white text-indigo-800 font-black text-sm rounded-lg shadow-sm">F</button>
+                    <button id="btn-G" onclick="makeLetterGuess('G', 'btn-G')" class="letter-btn py-3 bg-white text-indigo-800 font-black text-sm rounded-lg shadow-sm">G</button>
+                    <button id="btn-A" onclick="makeLetterGuess('A', 'btn-A')" class="letter-btn py-3 bg-white text-indigo-800 font-black text-sm rounded-lg shadow-sm">A</button>
+                    <button id="btn-B" onclick="makeLetterGuess('B', 'btn-B')" class="letter-btn py-3 bg-white text-indigo-800 font-black text-sm rounded-lg shadow-sm">B</button>
+                    <button onclick="chooseNewTarget()" class="py-3 bg-purple-400 active:bg-purple-300 text-white font-extrabold text-[10px] rounded-lg shadow-sm">Skip</button>
                 </div>
             </div>
 
@@ -192,7 +192,8 @@
     </div>
 
     <!-- Piano Keyboard Section sized to take remaining height completely -->
-    <div id="pianoSection" class="flex-1 bg-white border-2 border-indigo-100 rounded-xl shadow-sm px-1.5 py-1.5 z-30 overflow-x-auto no-scrollbar relative">
+    <div id="pianoSection" class="flex-1 bg-white border-2 border-indigo-100 rounded-xl shadow-sm px-1.5 py-1.5 z-30 overflow-x-auto no-scrollbar relative w-full flex justify-center">
+        <!-- The mx-auto handles centering when the container is wider than keys -->
         <div id="pianoContainer" class="flex relative select-none h-full mx-auto" style="min-width: max-content;">
             <!-- Dynamic piano keys generated via JS (White and Black separated in DOM) -->
         </div>
@@ -325,17 +326,25 @@
         const SONG_QUESTS = {
             'level1': [
                 { title: "Mary Had a Little Lamb 🐑", sequence: ['E4', 'D4', 'C4', 'D4', 'E4', 'E4', 'E4', 'D4', 'D4', 'D4', 'E4', 'G4', 'G4'] },
-                { title: "Hot Cross Buns 🍞", sequence: ['E4', 'D4', 'C4', 'E4', 'D4', 'C4', 'C4', 'C4', 'C4', 'D4', 'D4', 'D4', 'E4', 'D4', 'C4'] }
+                { title: "Hot Cross Buns 🍞", sequence: ['E4', 'D4', 'C4', 'E4', 'D4', 'C4', 'C4', 'C4', 'C4', 'D4', 'D4', 'D4', 'E4', 'D4', 'C4'] },
+                { title: "Jingle Bells 🔔", sequence: ['E4', 'E4', 'E4', 'E4', 'E4', 'E4', 'E4', 'G4', 'C4', 'D4', 'E4'] },
+                { title: "Rain, Rain, Go Away ☔️", sequence: ['G4', 'E4', 'G4', 'G4', 'E4', 'G4', 'E4', 'G4', 'G4', 'E4'] }
             ],
             'level2': [
                 { title: "Twinkle Twinkle Little Star ⭐️", sequence: ['C4', 'C4', 'G4', 'G4', 'A4', 'A4', 'G4', 'F4', 'F4', 'E4', 'E4', 'D4', 'D4', 'C4'] },
-                { title: "Ode to Joy 🌸", sequence: ['E4', 'E4', 'F4', 'G4', 'G4', 'F4', 'E4', 'D4', 'C4', 'C4', 'D4', 'E4', 'E4', 'D4', 'D4'] }
+                { title: "Ode to Joy 🌸", sequence: ['E4', 'E4', 'F4', 'G4', 'G4', 'F4', 'E4', 'D4', 'C4', 'C4', 'D4', 'E4', 'E4', 'D4', 'D4'] },
+                { title: "London Bridge 🌉", sequence: ['G4', 'A4', 'G4', 'F4', 'E4', 'F4', 'G4', 'D4', 'E4', 'F4', 'E4', 'F4', 'G4'] },
+                { title: "Row Your Boat 🛶", sequence: ['C4', 'C4', 'C4', 'D4', 'E4', 'E4', 'D4', 'E4', 'F4', 'G4'] }
             ],
             'level3': [
-                { title: "Low Sea Explorer 🐙", sequence: ['C3', 'C3', 'G3', 'G3', 'A3', 'A3', 'G3', 'F3', 'F3', 'E3', 'E3', 'D3', 'D3', 'C3'] }
+                { title: "Low Sea Explorer 🐙", sequence: ['C3', 'C3', 'G3', 'G3', 'A3', 'A3', 'G3', 'F3', 'F3', 'E3', 'E3', 'D3', 'D3', 'C3'] },
+                { title: "Deep Cave Melody 🦇", sequence: ['C3', 'E3', 'G3', 'E3', 'C3', 'D3', 'F3', 'D3', 'C3'] },
+                { title: "Whale Song 🐳", sequence: ['F3', 'E3', 'D3', 'C3', 'D3', 'E3', 'F3', 'G3'] }
             ],
             'level4': [
-                { title: "Frere Jacques 🔔", sequence: ['C4', 'D4', 'E4', 'C4', 'C4', 'D4', 'E4', 'C4', 'E4', 'F4', 'G4'] }
+                { title: "Frere Jacques 🔔", sequence: ['C4', 'D4', 'E4', 'C4', 'C4', 'D4', 'E4', 'C4', 'E4', 'F4', 'G4', 'E4', 'F4', 'G4'] },
+                { title: "Old MacDonald 🚜", sequence: ['C5', 'C5', 'C5', 'G4', 'A4', 'A4', 'G4', 'E4', 'E4', 'D4', 'D4', 'C4'] },
+                { title: "Yankee Doodle 🐎", sequence: ['C4', 'C4', 'D4', 'E4', 'C4', 'E4', 'D4', 'G3', 'C4', 'C4', 'D4', 'E4', 'C4', 'B3'] }
             ]
         };
 
@@ -349,13 +358,13 @@
         let starCount = 0;
         let streakCount = 0;
 
-        // Melody Quest Keyboard Bug (Separate black and white keys in DOM)
+        // Fix 1: Wider Keys for Kids
         function renderPiano() {
             const container = document.getElementById('pianoContainer');
             container.innerHTML = '';
             
             const whiteKeys = PIANO_SCALE.filter(n => !n.isBlack);
-            const wKeyWidth = 46; // px
+            const wKeyWidth = 62; // Wider for kids!
             container.style.width = `${whiteKeys.length * wKeyWidth}px`;
             
             whiteKeys.forEach((keyData, index) => {
@@ -384,10 +393,10 @@
                         const blackKeyNode = document.createElement('div');
                         // Absolute positioning completely disconnects it from white key scaling/moving!
                         blackKeyNode.className = "black-key-shadow absolute bg-slate-800 border-b-4 border-slate-950 z-20 rounded-b-lg cursor-pointer select-none";
-                        blackKeyNode.style.width = '28px';
+                        blackKeyNode.style.width = '36px';
                         blackKeyNode.style.height = '60%';
                         blackKeyNode.style.top = '0';
-                        blackKeyNode.style.left = `${(index + 1) * wKeyWidth - 14}px`;
+                        blackKeyNode.style.left = `${(index + 1) * wKeyWidth - 18}px`;
 
                         const handleBlackTap = (e) => {
                             e.preventDefault();
@@ -576,6 +585,12 @@
             const canvas = document.getElementById('staffCanvas');
             if (!canvas) return;
             const ctx = canvas.getContext('2d');
+            
+            // Handle resizing smoothly for Flashcard mode where canvas grows
+            const rect = canvas.parentElement.getBoundingClientRect();
+            canvas.width = rect.width;
+            canvas.height = rect.height;
+            
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
             const staffSpacing = 11;
@@ -622,6 +637,9 @@
                 drawSingleNoteHead(ctx, selectedNote, canvas.width / 2, startY, staffSpacing, false, false);
             }
         }
+        
+        // Ensure staff redraws if window resizes (especially important when flex-1 triggers)
+        window.addEventListener('resize', () => drawStaff());
 
         function highlightMelodyNextStep() {
             if (currentMode !== 'melodyquest') return;
@@ -666,6 +684,7 @@
             highlightMelodyNextStep();
         }
 
+        // Fix 3: Alignment Fix
         function switchTab(mode) {
             currentMode = mode;
             
@@ -679,10 +698,17 @@
             });
 
             const pianoSec = document.getElementById('pianoSection');
+            const topWidgets = document.getElementById('topWidgets');
+            
             if (mode === 'flashcards') {
                 pianoSec.classList.add('hidden');
+                // Allow the top widgets to fill the remaining screen space beautifully!
+                topWidgets.classList.remove('shrink-0', 'h-[155px]');
+                topWidgets.classList.add('flex-1');
             } else {
                 pianoSec.classList.remove('hidden');
+                topWidgets.classList.add('shrink-0', 'h-[155px]');
+                topWidgets.classList.remove('flex-1');
             }
 
             document.getElementById('flashcardControls').classList.toggle('hidden', mode !== 'flashcards');
@@ -696,6 +722,8 @@
             } else if (mode === 'flashcards') {
                 document.getElementById('mascotPrompt').innerText = "Look at the note on the lines. What letter is it?";
                 chooseNewTarget();
+                // Re-draw staff after a tiny delay so canvas can measure its new flex-1 height
+                setTimeout(drawStaff, 50); 
             } else if (mode === 'keyfinder') {
                 document.getElementById('mascotPrompt').innerText = "Find and tap the matching key on the keyboard!";
                 chooseNewTarget();
