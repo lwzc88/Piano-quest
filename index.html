@@ -221,6 +221,29 @@
             font-weight: 700;
             text-align: center;
         }
+        .listen-btn {
+            background: rgba(99, 102, 241, 0.8);
+            color: white;
+            padding: 0.3rem 1rem;
+            border-radius: 9999px;
+            font-weight: 700;
+            font-size: 0.8rem;
+            border: none;
+            transition: all 0.1s ease;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+        .listen-btn:active {
+            transform: scale(0.95);
+            background: rgba(79, 70, 229, 0.9);
+        }
+        .listen-btn:disabled {
+            opacity: 0.4;
+            pointer-events: none;
+        }
     </style>
 </head>
 <body class="h-full w-full text-slate-800 antialiased flex flex-col p-2 pt-3 pb-3 gap-2 box-border">
@@ -249,7 +272,7 @@
             <h1 class="text-xs sm:text-sm font-black header-font text-indigo-600 tracking-tight">Piano Quest!</h1>
         </div>
 
-        <!-- Mode Nav Buttons – 4 modes, now Interval Trainer -->
+        <!-- Mode Nav Buttons -->
         <div class="flex items-center gap-1 shrink-0 flex-wrap">
             <button onclick="switchTab('flashcards')" id="tab-flashcards" class="px-2 py-1 rounded-lg font-black text-[10px] header-font transition bg-white text-slate-600 hover:bg-indigo-50">
                 1. Note Matcher
@@ -358,21 +381,21 @@
                 <div id="intervaltrainerHUD" class="hidden hud-container bg-indigo-950/40 p-2 rounded-lg text-center border border-indigo-300/20 mt-1">
                     <p class="text-[9px] font-black text-indigo-200 uppercase">Are these notes a step or a skip?</p>
                     <div class="flex gap-2 mt-1 justify-center">
-                        <button id="stepBtn" class="interval-btn step-btn flex-1" onclick="intervalGuess('step')">
-                            <i class="fa-solid fa-arrow-up"></i> Step
-                        </button>
-                        <button id="skipBtn" class="interval-btn skip-btn flex-1" onclick="intervalGuess('skip')">
-                            <i class="fa-solid fa-arrow-up-long"></i> Skip
+                        <button id="stepBtn" class="interval-btn step-btn flex-1" onclick="intervalGuess('step')">Step</button>
+                        <button id="skipBtn" class="interval-btn skip-btn flex-1" onclick="intervalGuess('skip')">Skip</button>
+                    </div>
+                    <div class="flex gap-2 mt-1 justify-center">
+                        <button id="listenBtn" class="listen-btn" onclick="playIntervalNotes()">
+                            <i class="fa-solid fa-ear-listen"></i> Listen
                         </button>
                     </div>
                     <div id="intervalFeedback" class="interval-feedback mt-1 text-amber-300">Tap Step or Skip!</div>
-                    <button onclick="newInterval()" class="mt-1 px-3 py-0.5 bg-purple-500/80 active:bg-purple-400 text-white font-bold text-[9px] rounded">New Pair</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- PIANO SECTION -->
+    <!-- PIANO SECTION (hidden in Interval Trainer) -->
     <div id="pianoSection" class="piano-section bg-white border-2 border-indigo-100 rounded-xl shadow-sm px-1.5 py-1.5 z-30 relative">
         <div id="pianoContainer" class="flex relative select-none h-full" style="min-width: max-content;">
             <!-- Dynamic piano keys generated via JS -->
@@ -723,10 +746,10 @@
         //  INTERVAL TRAINER STATE
         // ============================================================
         let intervalState = {
-            note1: null, // note data object
+            note1: null,
             note2: null,
             answer: null, // 'step' or 'skip'
-            locked: false, // prevent double answer
+            locked: false,
         };
 
         // ============================================================
@@ -1050,7 +1073,6 @@
             ctx.fillText(currentClef === 'treble' ? '𝄞' : '𝄢', startX + 20, midY);
 
             if (currentMode === 'melodyquest') {
-                // ... existing melody quest drawing code (unchanged) ...
                 const seq = melodyQuestActiveSong.sequence;
                 const phraseIdx = Math.floor(melodyQuestProgress / notesPerPhrase);
                 const startIdx = phraseIdx * notesPerPhrase;
@@ -1096,21 +1118,18 @@
                 });
 
             } else if (currentMode === 'flashcards' || currentMode === 'keyfinder') {
-                // Show single note
                 if (selectedNote) {
                     drawSingleNoteHead(ctx, selectedNote, canvas.width / 2, startY, staffSpacing, false, false);
                 }
             } else if (currentMode === 'intervaltrainer') {
-                // Show two notes
                 if (intervalState.note1 && intervalState.note2) {
-                    const x1 = canvas.width / 2 - 50;
-                    const x2 = canvas.width / 2 + 50;
+                    const x1 = canvas.width / 2 - 60;
+                    const x2 = canvas.width / 2 + 60;
                     const n1 = intervalState.note1;
                     const n2 = intervalState.note2;
-                    // Draw both notes with stems, and possibly a bracket or connecting line
                     drawSingleNoteHead(ctx, n1, x1, startY, staffSpacing, false, false, '#0f172a', true);
                     drawSingleNoteHead(ctx, n2, x2, startY, staffSpacing, false, false, '#0f172a', true);
-                    // Draw a connecting bracket/line to show they are a pair
+                    // Draw a connecting line
                     ctx.save();
                     ctx.setLineDash([3, 4]);
                     ctx.strokeStyle = '#94a3b8';
@@ -1184,46 +1203,42 @@
         // ============================================================
         //  INTERVAL TRAINER
         // ============================================================
+        function playIntervalNotes() {
+            if (!intervalState.note1 || !intervalState.note2) return;
+            initAudioEngine();
+            // Play first note
+            playNoteAudio(intervalState.note1.freq);
+            // Play second note after a short pause (400ms)
+            setTimeout(() => {
+                playNoteAudio(intervalState.note2.freq);
+            }, 400);
+        }
+
         function newInterval() {
             // Reset lock and buttons
             intervalState.locked = false;
             document.getElementById('stepBtn').disabled = false;
             document.getElementById('skipBtn').disabled = false;
+            document.getElementById('listenBtn').disabled = false;
             document.getElementById('intervalFeedback').textContent = 'Tap Step or Skip!';
             document.getElementById('intervalFeedback').className = 'interval-feedback mt-1 text-amber-300';
 
             const pool = getNotePool();
             if (pool.length < 2) {
-                // Not enough notes, fallback
                 document.getElementById('intervalFeedback').textContent = 'Need more notes! Change level.';
                 return;
             }
 
             // Pick a random starting note index
             const startIdx = Math.floor(Math.random() * pool.length);
-            let endIdx;
-            let intervalType; // 'step' or 'skip'
-
-            // Decide interval: step (2nd) or skip (3rd). For simplicity, we use white keys only for levels 1-3? We'll just use the pool.
-            // Since pool contains only white keys for levels 1-3, and all notes for higher levels, we need to ensure we pick a second note that is either a step or skip in pitch.
-            // We'll get the index of the note in the full PIANO_SCALE to determine distance.
             const note1Name = pool[startIdx];
             const note1 = PIANO_SCALE.find(n => n.name === note1Name);
             if (!note1) return;
 
-            // Find all possible notes that are within 3 steps (major/minor) and within the pool.
-            // We'll pick a random second note that is either a 2nd (step) or 3rd (skip) away.
-            // We'll search for notes in the pool that are 1 or 2 white keys away in terms of white-key count.
-            // But to keep it simple, we'll filter pool notes that are within ±3 semitones (minor/major 2nd or 3rd).
-            // However, we want to keep it simple: choose a note that is either adjacent (step) or one white key in between (skip).
-            // Since pool may include black keys, we need to filter.
-            // We'll use the white-key index: map each note to its white-key position.
-            // We'll compute the white-key index for each note (C=0, D=1, etc.) ignoring octave? That would be ambiguous.
-            // Better: use the order in the full scale (index). We'll use the chromatic index for simplicity.
+            // Find candidates within ±2 or ±3 semitones
             const currentIndex = PIANO_SCALE.indexOf(note1);
-            // Gather candidates within ±2 or ±3 semitones that are in the pool.
             const candidates = [];
-            const offsets = [2, 3, -2, -3]; // major/minor 2nd and 3rd
+            const offsets = [2, 3, -2, -3];
             for (let off of offsets) {
                 const idx = currentIndex + off;
                 if (idx >= 0 && idx < PIANO_SCALE.length) {
@@ -1233,37 +1248,30 @@
                     }
                 }
             }
-            // Also include unison? We skip unison for clarity.
+
             if (candidates.length === 0) {
-                // Fallback: pick any other note in pool
                 const otherPool = pool.filter(n => n !== note1Name);
                 if (otherPool.length > 0) {
                     const randName2 = otherPool[Math.floor(Math.random() * otherPool.length)];
                     const note2 = PIANO_SCALE.find(n => n.name === randName2);
-                    // Determine if step or skip by chromatic distance (abs diff up to 2 => step, 3-4 => skip)
                     const diff = Math.abs(PIANO_SCALE.indexOf(note1) - PIANO_SCALE.indexOf(note2));
-                    if (diff <= 2) intervalType = 'step';
-                    else intervalType = 'skip';
+                    const intervalType = diff <= 2 ? 'step' : 'skip';
                     intervalState.note1 = note1;
                     intervalState.note2 = note2;
                     intervalState.answer = intervalType;
                     drawStaff();
                     return;
                 } else {
-                    // No other note, pick again with a different starting note?
                     newInterval();
                     return;
                 }
             }
 
-            // Pick a random candidate
             const chosen = candidates[Math.floor(Math.random() * candidates.length)];
             const note2 = chosen.note;
             const absOffset = Math.abs(chosen.offset);
-            // For simplicity: offset of 2 semitones (major 2nd) -> step; offset of 3 (minor 3rd) -> skip; but also offset of 4 (major 3rd) is skip.
-            // We'll categorize: if absOffset <= 2 => step, else skip.
             const isStep = absOffset <= 2;
-            intervalType = isStep ? 'step' : 'skip';
+            const intervalType = isStep ? 'step' : 'skip';
 
             intervalState.note1 = note1;
             intervalState.note2 = note2;
@@ -1277,31 +1285,38 @@
         function intervalGuess(guess) {
             if (intervalState.locked) return;
             if (!intervalState.note1 || !intervalState.note2) {
-                document.getElementById('intervalFeedback').textContent = 'Click "New Pair" first!';
+                document.getElementById('intervalFeedback').textContent = 'Click "Listen" or wait for new notes!';
                 return;
             }
 
             intervalState.locked = true;
             document.getElementById('stepBtn').disabled = true;
             document.getElementById('skipBtn').disabled = true;
+            document.getElementById('listenBtn').disabled = true;
 
             const correct = (guess === intervalState.answer);
             const feedbackEl = document.getElementById('intervalFeedback');
+            const intervalName = intervalState.answer === 'step' ? 'Step (2nd)' : 'Skip (3rd)';
+
             if (correct) {
-                feedbackEl.textContent = '✅ Correct! ' + (guess === 'step' ? 'Step' : 'Skip') + '! Great job!';
+                feedbackEl.textContent = `✅ Correct! That's a ${intervalName}! Great job!`;
                 feedbackEl.className = 'interval-feedback mt-1 text-emerald-300';
-                scoreSuccess();
-                // Add extra stars for interval
-                starCount += 5;
+                // Add stars
+                starCount += 10;
+                streakCount += 1;
                 document.getElementById('starCounter').innerText = starCount;
+                document.getElementById('streakCounter').innerText = streakCount;
+                playAudioFx('success');
                 document.getElementById('mascotPrompt').innerHTML =
-                    `<span class="text-emerald-600 font-black">⭐ Correct! ${guess === 'step' ? 'Step' : 'Skip'}!</span>`;
+                    `<span class="text-emerald-600 font-black">⭐ Correct! ${intervalName}!</span>`;
             } else {
-                feedbackEl.textContent = '❌ Oops! It was a ' + (intervalState.answer === 'step' ? 'Step' : 'Skip') + '. Try again!';
+                feedbackEl.textContent = `❌ Oops! That was a ${intervalName}. Try again!`;
                 feedbackEl.className = 'interval-feedback mt-1 text-red-300';
-                scoreMistake();
+                streakCount = 0;
+                document.getElementById('streakCounter').innerText = streakCount;
+                playAudioFx('mistake');
                 document.getElementById('mascotPrompt').innerHTML =
-                    `<span class="text-red-600 font-black">❌ Not quite. It was a ${intervalState.answer === 'step' ? 'Step' : 'Skip'}.</span>`;
+                    `<span class="text-red-600 font-black">❌ Not quite. It was a ${intervalName}.</span>`;
             }
 
             // Auto new interval after delay
@@ -1309,7 +1324,7 @@
                 if (currentMode === 'intervaltrainer') {
                     newInterval();
                 }
-            }, 2000);
+            }, 2200);
         }
 
         // ============================================================
@@ -1329,9 +1344,9 @@
                 }
             });
 
-            // Show/hide piano
+            // Show/hide piano – hide for Note Matcher and Interval Trainer
             const pianoSec = document.getElementById('pianoSection');
-            if (mode === 'flashcards') {
+            if (mode === 'flashcards' || mode === 'intervaltrainer') {
                 pianoSec.classList.add('hidden');
             } else {
                 pianoSec.classList.remove('hidden');
@@ -1359,13 +1374,13 @@
                 highlightMelodyNextStep();
             } else if (mode === 'intervaltrainer') {
                 document.getElementById('mascotPrompt').innerHTML = "Are the two notes a Step or a Skip?";
-                // Reset interval state
                 intervalState.note1 = null;
                 intervalState.note2 = null;
                 intervalState.answer = null;
                 intervalState.locked = false;
                 document.getElementById('stepBtn').disabled = false;
                 document.getElementById('skipBtn').disabled = false;
+                document.getElementById('listenBtn').disabled = false;
                 document.getElementById('intervalFeedback').textContent = 'Tap Step or Skip!';
                 document.getElementById('intervalFeedback').className = 'interval-feedback mt-1 text-amber-300';
                 newInterval();
