@@ -95,6 +95,8 @@
         #pianoContainer {
             position: relative;
             touch-action: none;
+            margin: 0 auto;
+            /* Center the container */
         }
 
         /* Fix for iPad: prevent zoom on double-tap */
@@ -121,9 +123,12 @@
             overflow-y: hidden;
             scroll-behavior: smooth;
             -webkit-overflow-scrolling: touch;
+            display: flex;
+            justify-content: center;
+            /* Center the inner container when it fits */
         }
 
-        /* Scroll hints for the piano – subtle gradient fade on edges */
+        /* Scroll hints – subtle fade on edges */
         .piano-section::before,
         .piano-section::after {
             content: '';
@@ -144,7 +149,6 @@
             right: 0;
             background: linear-gradient(to left, rgba(255, 255, 255, 0.6), transparent);
         }
-        /* Show scroll hints only when needed – we'll add a class via JS */
         .piano-section.scroll-left::before {
             opacity: 1;
         }
@@ -324,7 +328,7 @@
 
     <!-- PIANO SECTION -->
     <div id="pianoSection" class="piano-section bg-white border-2 border-indigo-100 rounded-xl shadow-sm px-1.5 py-1.5 z-30 relative">
-        <div id="pianoContainer" class="flex relative select-none h-full mx-auto" style="min-width: max-content;">
+        <div id="pianoContainer" class="flex relative select-none h-full" style="min-width: max-content;">
             <!-- Dynamic piano keys generated via JS -->
         </div>
     </div>
@@ -482,15 +486,15 @@
                 label: 'Level 1',
                 startNote: 'C4',
                 endNote: 'G4',
-                showBlack: false,
+                showBlack: true, // Always show black keys visually
                 defaultClef: 'treble',
-                pool: ['C4', 'D4', 'E4', 'F4', 'G4']
+                pool: ['C4', 'D4', 'E4', 'F4', 'G4'] // White keys only for challenges
             },
             'level2': {
                 label: 'Level 2',
                 startNote: 'C4',
                 endNote: 'C5',
-                showBlack: false,
+                showBlack: true,
                 defaultClef: 'treble',
                 pool: ['C4', 'D4', 'E4', 'F4', 'G4', 'A4', 'B4', 'C5']
             },
@@ -498,7 +502,7 @@
                 label: 'Level 3',
                 startNote: 'C3',
                 endNote: 'B3',
-                showBlack: false,
+                showBlack: true,
                 defaultClef: 'bass',
                 pool: ['C3', 'D3', 'E3', 'F3', 'G3', 'A3', 'B3']
             },
@@ -537,7 +541,7 @@
             return LEVEL_CONFIG[currentLevel].pool;
         }
 
-        // Get keyboard range for current level
+        // Get keyboard range for current level (includes all chromatic notes from start to end)
         function getKeyboardRange() {
             const config = LEVEL_CONFIG[currentLevel];
             const startIndex = PIANO_SCALE.findIndex(n => n.name === config.startNote);
@@ -676,7 +680,7 @@
         let streakCount = 0;
 
         // ============================================================
-        //  PIANO RENDERER – Adaptive to Level
+        //  PIANO RENDERER – Adaptive to Level, always shows black keys
         // ============================================================
         function renderPiano() {
             const container = document.getElementById('pianoContainer');
@@ -690,10 +694,9 @@
 
             container.innerHTML = '';
 
-            // Get the keys for this level
+            // Get the keys for this level (chromatic range)
             const levelKeys = getKeyboardRange();
             const config = LEVEL_CONFIG[currentLevel];
-            const showBlack = config.showBlack;
 
             // Filter white keys
             const whiteKeys = levelKeys.filter(n => !n.isBlack);
@@ -704,15 +707,11 @@
             const maxKeyWidth = 60;
             let wKeyWidth = Math.min(maxKeyWidth, Math.max(minKeyWidth, availableWidth / whiteKeys.length));
 
-            // If we have 29 white keys (Level 6), 29 * 30 = 870px, which fits in 1024px with room for black keys.
-            // But black keys need space too. Let's check total width.
+            // Total width of white keys
             const totalWhiteWidth = whiteKeys.length * wKeyWidth;
-            // Black keys are positioned between white keys. We need to make sure they fit.
-            // We'll set the container width to the total width of white keys + some padding for black keys.
-            // Actually, black keys are absolutely positioned, so we just need to set the container width to fit all white keys.
-            // The black keys will overlay the white keys.
+            // Set container width to the total white width, and center via margin: auto
             container.style.width = `${totalWhiteWidth}px`;
-            container.style.minWidth = '100%';
+            container.style.margin = '0 auto';
 
             // Update scroll hints
             updateScrollHints();
@@ -735,33 +734,31 @@
 
                 container.appendChild(whiteKeyNode);
 
-                // Black keys – only if showBlack is true
-                if (showBlack) {
-                    const sharpNeighbors = ['C', 'D', 'F', 'G', 'A'];
-                    if (sharpNeighbors.includes(keyData.label) && keyData.name !== 'C6') {
-                        const sharpName = `${keyData.label}#${keyData.octave}`;
-                        const sharpData = levelKeys.find(n => n.name === sharpName);
-                        if (sharpData) {
-                            const blackKeyNode = document.createElement('div');
-                            blackKeyNode.className =
-                                `black-key-shadow absolute bg-slate-800 border-b-4 border-slate-950 z-20 rounded-b-lg cursor-pointer select-none`;
-                            blackKeyNode.style.width = `${Math.min(28, wKeyWidth * 0.65)}px`;
-                            blackKeyNode.style.height = '60%';
-                            blackKeyNode.style.top = '0';
-                            blackKeyNode.style.left = `${(index + 1) * wKeyWidth - (Math.min(28, wKeyWidth * 0.65) / 2)}px`;
+                // Always show black keys if they exist in the range
+                const sharpNeighbors = ['C', 'D', 'F', 'G', 'A'];
+                if (sharpNeighbors.includes(keyData.label) && keyData.name !== 'C6') {
+                    const sharpName = `${keyData.label}#${keyData.octave}`;
+                    const sharpData = levelKeys.find(n => n.name === sharpName);
+                    if (sharpData) {
+                        const blackKeyNode = document.createElement('div');
+                        blackKeyNode.className =
+                            `black-key-shadow absolute bg-slate-800 border-b-4 border-slate-950 z-20 rounded-b-lg cursor-pointer select-none`;
+                        blackKeyNode.style.width = `${Math.min(28, wKeyWidth * 0.65)}px`;
+                        blackKeyNode.style.height = '60%';
+                        blackKeyNode.style.top = '0';
+                        blackKeyNode.style.left = `${(index + 1) * wKeyWidth - (Math.min(28, wKeyWidth * 0.65) / 2)}px`;
 
-                            const handleBlackTap = (e) => {
-                                e.preventDefault();
-                                e.stopPropagation();
-                                initAudioEngine();
-                                blackKeyNode.classList.add('active');
-                                setTimeout(() => blackKeyNode.classList.remove('active'), 150);
-                                onKeyTouch(sharpData);
-                            };
-                            blackKeyNode.addEventListener('pointerdown', handleBlackTap);
+                        const handleBlackTap = (e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            initAudioEngine();
+                            blackKeyNode.classList.add('active');
+                            setTimeout(() => blackKeyNode.classList.remove('active'), 150);
+                            onKeyTouch(sharpData);
+                        };
+                        blackKeyNode.addEventListener('pointerdown', handleBlackTap);
 
-                            container.appendChild(blackKeyNode);
-                        }
+                        container.appendChild(blackKeyNode);
                     }
                 }
             });
@@ -1186,7 +1183,6 @@
         }
 
         window.addEventListener('resize', handleResize);
-        // Also update on orientation change
         window.addEventListener('orientationchange', handleResize);
 
         // ============================================================
