@@ -177,156 +177,49 @@
             touch-action: none;
         }
 
-        /* Rhythm Clap styles */
-        .beat-circle {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: #e2e8f0;
-            border: 3px solid #94a3b8;
-            transition: all 0.15s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 14px;
-            font-weight: bold;
-            color: #475569;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-        }
-        .beat-circle.active {
-            border-color: #f59e0b;
-            background: #fbbf24;
-            transform: scale(1.15);
-            box-shadow: 0 0 20px rgba(251, 191, 36, 0.5);
-            color: #78350f;
-        }
-        .beat-circle.hit-perfect {
-            border-color: #10b981;
-            background: #34d399;
-            color: #064e3b;
-        }
-        .beat-circle.hit-good {
-            border-color: #f59e0b;
-            background: #fcd34d;
-            color: #78350f;
-        }
-        .beat-circle.hit-miss {
-            border-color: #ef4444;
-            background: #fca5a5;
-            color: #7f1d1d;
-        }
-        .beat-circle.waiting {
-            border-color: #94a3b8;
-            background: #e2e8f0;
-            color: #475569;
-        }
-
-        .clap-btn {
-            width: 120px;
-            height: 120px;
-            border-radius: 50%;
-            background: linear-gradient(145deg, #f472b6, #ec4899);
-            border: none;
-            box-shadow: 0 8px 0 #be185d, 0 8px 20px rgba(236, 72, 153, 0.4);
-            color: white;
-            font-size: 2.5rem;
-            transition: all 0.08s ease;
+        /* Interval Trainer styles */
+        .interval-btn {
+            padding: 0.75rem 0.5rem;
+            border-radius: 0.75rem;
+            font-weight: 800;
+            font-size: 1.1rem;
+            transition: all 0.1s ease;
             touch-action: manipulation;
             cursor: pointer;
+            border: none;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
             display: flex;
             align-items: center;
             justify-content: center;
-            margin: 0 auto;
-            position: relative;
+            gap: 0.4rem;
         }
-        .clap-btn:active,
-        .clap-btn.clapping {
-            transform: translateY(6px);
-            box-shadow: 0 2px 0 #be185d, 0 4px 12px rgba(236, 72, 153, 0.3);
+        .interval-btn:active {
+            transform: scale(0.93);
         }
-        .clap-btn:disabled {
+        .interval-btn.step-btn {
+            background: #fbbf24;
+            color: #78350f;
+        }
+        .interval-btn.step-btn:active {
+            background: #f59e0b;
+        }
+        .interval-btn.skip-btn {
+            background: #f472b6;
+            color: #831843;
+        }
+        .interval-btn.skip-btn:active {
+            background: #ec4899;
+        }
+        .interval-btn:disabled {
             opacity: 0.5;
-            transform: translateY(4px);
-            box-shadow: 0 4px 0 #be185d;
+            transform: none;
             pointer-events: none;
         }
-        .clap-btn .ripple {
-            position: absolute;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.3);
-            transform: scale(0);
-            animation: ripple 0.6s ease-out forwards;
-            pointer-events: none;
-            width: 100%;
-            height: 100%;
-            top: 0;
-            left: 0;
-        }
-        @keyframes ripple {
-            0% {
-                transform: scale(0.8);
-                opacity: 1;
-            }
-            100% {
-                transform: scale(1.6);
-                opacity: 0;
-            }
-        }
-
-        @keyframes bounce {
-            0%,
-            100% {
-                transform: scale(1);
-            }
-            50% {
-                transform: scale(1.1);
-            }
-        }
-        .bounce-anim {
-            animation: bounce 0.3s ease;
-        }
-
-        .rhythm-progress {
-            height: 4px;
-            background: #e2e8f0;
-            border-radius: 4px;
-            overflow: hidden;
-            margin: 4px 0;
-        }
-        .rhythm-progress-bar {
-            height: 100%;
-            width: 0%;
-            background: linear-gradient(to right, #fbbf24, #f59e0b);
-            transition: width 0.1s ease;
-            border-radius: 4px;
-        }
-
-        .rhythm-score-stars {
-            display: flex;
-            gap: 2px;
-            justify-content: center;
-            font-size: 1.2rem;
-        }
-
-        /* Beat counter label */
-        .beat-counter {
-            font-size: 0.75rem;
+        .interval-feedback {
+            min-height: 1.5rem;
+            font-size: 0.85rem;
             font-weight: 700;
-            color: #c7d2fe;
             text-align: center;
-        }
-
-        @media (min-width: 768px) {
-            .beat-circle {
-                width: 48px;
-                height: 48px;
-                font-size: 16px;
-            }
-            .clap-btn {
-                width: 140px;
-                height: 140px;
-                font-size: 3rem;
-            }
         }
     </style>
 </head>
@@ -356,7 +249,7 @@
             <h1 class="text-xs sm:text-sm font-black header-font text-indigo-600 tracking-tight">Piano Quest!</h1>
         </div>
 
-        <!-- Mode Nav Buttons – 4 modes -->
+        <!-- Mode Nav Buttons – 4 modes, now Interval Trainer -->
         <div class="flex items-center gap-1 shrink-0 flex-wrap">
             <button onclick="switchTab('flashcards')" id="tab-flashcards" class="px-2 py-1 rounded-lg font-black text-[10px] header-font transition bg-white text-slate-600 hover:bg-indigo-50">
                 1. Note Matcher
@@ -367,8 +260,8 @@
             <button onclick="switchTab('melodyquest')" id="tab-melodyquest" class="px-2 py-1 rounded-lg font-black text-[10px] header-font transition bg-white text-slate-600 hover:bg-indigo-50">
                 3. Melody Quest
             </button>
-            <button onclick="switchTab('rhythmclap')" id="tab-rhythmclap" class="px-2 py-1 rounded-lg font-black text-[10px] header-font transition bg-indigo-600 text-white shadow-sm">
-                4. Rhythm Clap
+            <button onclick="switchTab('intervaltrainer')" id="tab-intervaltrainer" class="px-2 py-1 rounded-lg font-black text-[10px] header-font transition bg-indigo-600 text-white shadow-sm">
+                4. Interval Trainer
             </button>
         </div>
 
@@ -390,7 +283,7 @@
     <div class="middle-section">
         <div class="grid grid-cols-12 gap-2 h-full overflow-hidden items-start">
 
-            <!-- Left: Music Staff / Rhythm Display -->
+            <!-- Left: Music Staff -->
             <div class="col-span-7 bg-white border-2 border-indigo-100 rounded-xl shadow-sm p-1.5 flex flex-col overflow-hidden relative h-full min-h-0">
                 <div class="flex items-center justify-between gap-1 border-b border-slate-100 pb-1 shrink-0 px-1 flex-wrap">
                     <div class="flex items-center gap-1">
@@ -417,14 +310,6 @@
                     <div id="incorrectIndicator" class="hidden absolute inset-0 bg-red-500/10 border border-red-500/30 rounded-lg flex items-center justify-center pointer-events-none">
                         <span class="bg-white px-3 py-1 rounded-lg text-xs font-black text-red-600 shadow">Try again! 🧸</span>
                     </div>
-                </div>
-
-                <!-- Beat Circles for Rhythm Clap (hidden by default) -->
-                <div id="rhythmBeatContainer" class="hidden flex justify-center items-center gap-2 mt-1 shrink-0 py-0.5">
-                    <div class="beat-circle waiting" id="beat0">1</div>
-                    <div class="beat-circle waiting" id="beat1">2</div>
-                    <div class="beat-circle waiting" id="beat2">3</div>
-                    <div class="beat-circle waiting" id="beat3">4</div>
                 </div>
             </div>
 
@@ -469,24 +354,19 @@
                     <button onclick="skipSong()" class="mx-auto px-3 py-0.5 bg-purple-500/80 active:bg-purple-400 text-white font-bold text-[9px] rounded">Skip Song</button>
                 </div>
 
-                <!-- Rhythm Clap HUD -->
-                <div id="rhythmclapHUD" class="hidden hud-container bg-indigo-950/40 p-2 rounded-lg text-center border border-indigo-300/20 mt-1">
-                    <div class="flex items-center justify-center gap-3 mb-1">
-                        <span class="text-[9px] font-black text-indigo-200">Beat</span>
-                        <span class="text-sm font-black text-yellow-300" id="beatCounter">1/4</span>
+                <!-- Interval Trainer HUD -->
+                <div id="intervaltrainerHUD" class="hidden hud-container bg-indigo-950/40 p-2 rounded-lg text-center border border-indigo-300/20 mt-1">
+                    <p class="text-[9px] font-black text-indigo-200 uppercase">Are these notes a step or a skip?</p>
+                    <div class="flex gap-2 mt-1 justify-center">
+                        <button id="stepBtn" class="interval-btn step-btn flex-1" onclick="intervalGuess('step')">
+                            <i class="fa-solid fa-arrow-up"></i> Step
+                        </button>
+                        <button id="skipBtn" class="interval-btn skip-btn flex-1" onclick="intervalGuess('skip')">
+                            <i class="fa-solid fa-arrow-up-long"></i> Skip
+                        </button>
                     </div>
-                    <div class="rhythm-progress mb-1">
-                        <div class="rhythm-progress-bar" id="rhythmProgressBar"></div>
-                    </div>
-                    <button id="clapBtn" class="clap-btn">
-                        👏
-                        <span class="ripple" style="display:none;"></span>
-                    </button>
-                    <div class="flex items-center justify-center gap-3 mt-1">
-                        <span class="text-[9px] font-black text-indigo-200">Round stars:</span>
-                        <span id="rhythmRoundStars" class="text-lg">☆☆☆☆</span>
-                    </div>
-                    <div id="rhythmFeedback" class="text-[10px] font-bold text-amber-300 mt-0.5 h-4">Tap the 👏 button in time!</div>
+                    <div id="intervalFeedback" class="interval-feedback mt-1 text-amber-300">Tap Step or Skip!</div>
+                    <button onclick="newInterval()" class="mt-1 px-3 py-0.5 bg-purple-500/80 active:bg-purple-400 text-white font-bold text-[9px] rounded">New Pair</button>
                 </div>
             </div>
         </div>
@@ -582,31 +462,6 @@
                     osc.start(now);
                     osc.stop(now + 0.3);
                 }
-            } catch (e) {}
-        }
-
-        // Metronome click sound for Rhythm Clap
-        function playMetronomeClick() {
-            try {
-                const ctx = initAudioEngine();
-                if (!ctx) return;
-                const now = ctx.currentTime;
-                // Short click using white noise burst
-                const bufferSize = ctx.sampleRate * 0.03;
-                const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
-                const data = buffer.getChannelData(0);
-                for (let i = 0; i < bufferSize; i++) {
-                    data[i] = (Math.random() * 2 - 1) * Math.exp(-i / (ctx.sampleRate * 0.01));
-                }
-                const source = ctx.createBufferSource();
-                source.buffer = buffer;
-                const gain = ctx.createGain();
-                gain.gain.setValueAtTime(0.15, now);
-                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.03);
-                source.connect(gain);
-                gain.connect(ctx.destination);
-                source.start(now);
-                source.stop(now + 0.03);
             } catch (e) {}
         }
 
@@ -865,22 +720,13 @@
         let streakCount = 0;
 
         // ============================================================
-        //  RHYTHM CLAP STATE
+        //  INTERVAL TRAINER STATE
         // ============================================================
-        let rhythmState = {
-            isPlaying: false,
-            beatIndex: 0,
-            totalBeats: 4,
-            bpm: 60,
-            beatDuration: 1000, // ms per beat
-            startTime: 0,
-            results: [], // 'perfect', 'good', 'miss' for each beat
-            roundStars: 0,
-            isWaitingForNext: false,
-            beatTimestamps: [],
-            clapTimes: [],
-            feedbackText: '',
-            progress: 0,
+        let intervalState = {
+            note1: null, // note data object
+            note2: null,
+            answer: null, // 'step' or 'skip'
+            locked: false, // prevent double answer
         };
 
         // ============================================================
@@ -1092,10 +938,12 @@
                 highlightMelodyNextStep();
             } else if (currentMode === 'flashcards' || currentMode === 'keyfinder') {
                 chooseNewTarget();
+            } else if (currentMode === 'intervaltrainer') {
+                newInterval();
             }
         }
 
-        function drawSingleNoteHead(ctx, noteData, noteX, startY, staffSpacing, isActive, isPlayed, colorOverride) {
+        function drawSingleNoteHead(ctx, noteData, noteX, startY, staffSpacing, isActive, isPlayed, colorOverride, showStem = true) {
             const bottomStaffY = startY + 4 * staffSpacing;
             const step = (currentClef === 'treble') ? noteData.trebleStep : noteData.bassStep;
             const noteY = bottomStaffY - step * (staffSpacing / 2);
@@ -1156,17 +1004,19 @@
                 ctx.fillText('♯', noteX - 18, noteY + 5);
             }
 
-            ctx.strokeStyle = (currentMode === 'melodyquest' && isPlayed) ? '#cbd5e1' : '#0f172a';
-            ctx.lineWidth = 2;
-            ctx.beginPath();
-            if (step >= 4) {
-                ctx.moveTo(noteX - 7, noteY);
-                ctx.lineTo(noteX - 7, noteY + 26);
-            } else {
-                ctx.moveTo(noteX + 7, noteY);
-                ctx.lineTo(noteX + 7, noteY - 26);
+            if (showStem) {
+                ctx.strokeStyle = (currentMode === 'melodyquest' && isPlayed) ? '#cbd5e1' : '#0f172a';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                if (step >= 4) {
+                    ctx.moveTo(noteX - 7, noteY);
+                    ctx.lineTo(noteX - 7, noteY + 26);
+                } else {
+                    ctx.moveTo(noteX + 7, noteY);
+                    ctx.lineTo(noteX + 7, noteY - 26);
+                }
+                ctx.stroke();
             }
-            ctx.stroke();
 
             return noteY;
         }
@@ -1200,11 +1050,11 @@
             ctx.fillText(currentClef === 'treble' ? '𝄞' : '𝄢', startX + 20, midY);
 
             if (currentMode === 'melodyquest') {
+                // ... existing melody quest drawing code (unchanged) ...
                 const seq = melodyQuestActiveSong.sequence;
                 const phraseIdx = Math.floor(melodyQuestProgress / notesPerPhrase);
                 const startIdx = phraseIdx * notesPerPhrase;
 
-                // Wider spacing: 70px between notes, starting at x=120
                 const startNoteX = 120;
                 const spacingX = 70;
 
@@ -1245,55 +1095,38 @@
                     drawSingleNoteHead(ctx, noteData, noteX, startY, staffSpacing, isActive, isPlayed);
                 });
 
-            } else if (selectedNote && (currentMode === 'flashcards' || currentMode === 'keyfinder')) {
-                drawSingleNoteHead(ctx, selectedNote, canvas.width / 2, startY, staffSpacing, false, false);
-            } else if (currentMode === 'rhythmclap') {
-                // Draw 4 quarter notes on the staff for rhythm clap
-                const notePositions = [];
-                const startNoteX = 180;
-                const spacingX = 70;
-                for (let i = 0; i < 4; i++) {
-                    const noteData = PIANO_SCALE.find(n => n.name === 'E4');
-                    const noteX = startNoteX + i * spacingX;
-                    const bottomStaffY = startY + 4 * staffSpacing;
-                    const step = (currentClef === 'treble') ? noteData.trebleStep : noteData.bassStep;
-                    const noteY = bottomStaffY - step * (staffSpacing / 2);
-                    const isActive = (i === rhythmState.beatIndex && rhythmState.isPlaying);
-                    const isPlayed = (i < rhythmState.beatIndex);
-                    notePositions.push({ noteData, noteX, noteY, isActive, isPlayed, seqIdx: i });
+            } else if (currentMode === 'flashcards' || currentMode === 'keyfinder') {
+                // Show single note
+                if (selectedNote) {
+                    drawSingleNoteHead(ctx, selectedNote, canvas.width / 2, startY, staffSpacing, false, false);
                 }
-
-                // Draw dotted guide lines
-                if (notePositions.length > 1) {
+            } else if (currentMode === 'intervaltrainer') {
+                // Show two notes
+                if (intervalState.note1 && intervalState.note2) {
+                    const x1 = canvas.width / 2 - 50;
+                    const x2 = canvas.width / 2 + 50;
+                    const n1 = intervalState.note1;
+                    const n2 = intervalState.note2;
+                    // Draw both notes with stems, and possibly a bracket or connecting line
+                    drawSingleNoteHead(ctx, n1, x1, startY, staffSpacing, false, false, '#0f172a', true);
+                    drawSingleNoteHead(ctx, n2, x2, startY, staffSpacing, false, false, '#0f172a', true);
+                    // Draw a connecting bracket/line to show they are a pair
                     ctx.save();
-                    ctx.setLineDash([4, 6]);
+                    ctx.setLineDash([3, 4]);
+                    ctx.strokeStyle = '#94a3b8';
                     ctx.lineWidth = 1.5;
-                    ctx.strokeStyle = '#cbd5e1';
-                    ctx.globalAlpha = 0.4;
-                    for (let i = 0; i < notePositions.length - 1; i++) {
-                        const from = notePositions[i];
-                        const to = notePositions[i + 1];
-                        ctx.beginPath();
-                        ctx.moveTo(from.noteX, from.noteY);
-                        ctx.lineTo(to.noteX, to.noteY);
-                        ctx.stroke();
-                    }
+                    ctx.globalAlpha = 0.5;
+                    const bottomStaffY = startY + 4 * staffSpacing;
+                    const step1 = (currentClef === 'treble') ? n1.trebleStep : n1.bassStep;
+                    const step2 = (currentClef === 'treble') ? n2.trebleStep : n2.bassStep;
+                    const y1 = bottomStaffY - step1 * (staffSpacing / 2);
+                    const y2 = bottomStaffY - step2 * (staffSpacing / 2);
+                    ctx.beginPath();
+                    ctx.moveTo(x1, y1);
+                    ctx.lineTo(x2, y2);
+                    ctx.stroke();
                     ctx.restore();
                 }
-
-                notePositions.forEach(({ noteData, noteX, noteY, isActive, isPlayed, seqIdx }) => {
-                    // For rhythm clap, we color the notes based on beat status
-                    let colorOverride = null;
-                    if (isPlayed) {
-                        const result = rhythmState.results[seqIdx];
-                        if (result === 'perfect') colorOverride = '#10b981';
-                        else if (result === 'good') colorOverride = '#f59e0b';
-                        else if (result === 'miss') colorOverride = '#ef4444';
-                    } else if (isActive) {
-                        colorOverride = '#fbbf24';
-                    }
-                    drawSingleNoteHead(ctx, noteData, noteX, startY, staffSpacing, false, false, colorOverride);
-                });
             }
         }
 
@@ -1349,282 +1182,143 @@
         }
 
         // ============================================================
-        //  RHYTHM CLAP GAME
+        //  INTERVAL TRAINER
         // ============================================================
-        let rhythmTimer = null;
-        let rhythmTickCount = 0;
+        function newInterval() {
+            // Reset lock and buttons
+            intervalState.locked = false;
+            document.getElementById('stepBtn').disabled = false;
+            document.getElementById('skipBtn').disabled = false;
+            document.getElementById('intervalFeedback').textContent = 'Tap Step or Skip!';
+            document.getElementById('intervalFeedback').className = 'interval-feedback mt-1 text-amber-300';
 
-        function startRhythmGame() {
-            if (rhythmState.isPlaying) return;
-
-            initAudioEngine();
-
-            // Reset state
-            rhythmState.beatIndex = 0;
-            rhythmState.results = [];
-            rhythmState.clapTimes = [];
-            rhythmState.beatTimestamps = [];
-            rhythmState.roundStars = 0;
-            rhythmState.isPlaying = true;
-            rhythmState.isWaitingForNext = false;
-            rhythmState.progress = 0;
-            rhythmState.feedbackText = '';
-
-            // Reset beat circles
-            for (let i = 0; i < 4; i++) {
-                const circle = document.getElementById(`beat${i}`);
-                circle.className = 'beat-circle waiting';
-                circle.textContent = i + 1;
-            }
-
-            // Reset progress bar
-            document.getElementById('rhythmProgressBar').style.width = '0%';
-            document.getElementById('rhythmRoundStars').textContent = '☆☆☆☆';
-            document.getElementById('beatCounter').textContent = '1/4';
-            document.getElementById('rhythmFeedback').textContent = 'Get ready... 👏';
-            document.getElementById('clapBtn').disabled = false;
-
-            // Enable clap button
-            const clapBtn = document.getElementById('clapBtn');
-            clapBtn.disabled = false;
-            clapBtn.style.opacity = '1';
-
-            // Schedule beats
-            const BPM = rhythmState.bpm;
-            const beatInterval = 60000 / BPM; // ms per beat
-            rhythmState.beatDuration = beatInterval;
-
-            // Start after a short delay (500ms) to prepare
-            const startDelay = 500;
-            const startTime = Date.now() + startDelay;
-
-            // Show "Get ready" for 500ms
-            setTimeout(() => {
-                document.getElementById('rhythmFeedback').textContent = '👏 Tap the button on each beat!';
-                // Start the beat sequence
-                scheduleBeat(startTime, 0);
-            }, startDelay);
-        }
-
-        function scheduleBeat(startTime, beatIndex) {
-            if (beatIndex >= 4) {
-                // Round finished
-                finishRhythmRound();
+            const pool = getNotePool();
+            if (pool.length < 2) {
+                // Not enough notes, fallback
+                document.getElementById('intervalFeedback').textContent = 'Need more notes! Change level.';
                 return;
             }
 
-            const beatTime = startTime + beatIndex * rhythmState.beatDuration;
-            const now = Date.now();
-            const delay = Math.max(0, beatTime - now);
+            // Pick a random starting note index
+            const startIdx = Math.floor(Math.random() * pool.length);
+            let endIdx;
+            let intervalType; // 'step' or 'skip'
 
-            rhythmTimer = setTimeout(() => {
-                // Play metronome click
-                playMetronomeClick();
+            // Decide interval: step (2nd) or skip (3rd). For simplicity, we use white keys only for levels 1-3? We'll just use the pool.
+            // Since pool contains only white keys for levels 1-3, and all notes for higher levels, we need to ensure we pick a second note that is either a step or skip in pitch.
+            // We'll get the index of the note in the full PIANO_SCALE to determine distance.
+            const note1Name = pool[startIdx];
+            const note1 = PIANO_SCALE.find(n => n.name === note1Name);
+            if (!note1) return;
 
-                // Update beat circle
-                const circle = document.getElementById(`beat${beatIndex}`);
-                circle.className = 'beat-circle active';
-                circle.textContent = beatIndex + 1;
-
-                // Update counter
-                document.getElementById('beatCounter').textContent = `${beatIndex + 1}/${4}`;
-
-                // Update progress
-                rhythmState.progress = ((beatIndex + 1) / 4) * 100;
-                document.getElementById('rhythmProgressBar').style.width = rhythmState.progress + '%';
-
-                // Record beat timestamp
-                rhythmState.beatTimestamps[beatIndex] = Date.now();
-
-                // Check if we already have a clap for this beat (if they tapped early)
-                if (rhythmState.clapTimes[beatIndex] !== undefined) {
-                    // They tapped before the beat - check timing
-                    const clapTime = rhythmState.clapTimes[beatIndex];
-                    const diff = clapTime - Date.now();
-                    // diff is negative if clap was before beat, positive if after
-                    // But we want to check against the beat timestamp we just recorded
-                    const actualDiff = clapTime - rhythmState.beatTimestamps[beatIndex];
-                    evaluateClap(beatIndex, actualDiff);
+            // Find all possible notes that are within 3 steps (major/minor) and within the pool.
+            // We'll pick a random second note that is either a 2nd (step) or 3rd (skip) away.
+            // We'll search for notes in the pool that are 1 or 2 white keys away in terms of white-key count.
+            // But to keep it simple, we'll filter pool notes that are within ±3 semitones (minor/major 2nd or 3rd).
+            // However, we want to keep it simple: choose a note that is either adjacent (step) or one white key in between (skip).
+            // Since pool may include black keys, we need to filter.
+            // We'll use the white-key index: map each note to its white-key position.
+            // We'll compute the white-key index for each note (C=0, D=1, etc.) ignoring octave? That would be ambiguous.
+            // Better: use the order in the full scale (index). We'll use the chromatic index for simplicity.
+            const currentIndex = PIANO_SCALE.indexOf(note1);
+            // Gather candidates within ±2 or ±3 semitones that are in the pool.
+            const candidates = [];
+            const offsets = [2, 3, -2, -3]; // major/minor 2nd and 3rd
+            for (let off of offsets) {
+                const idx = currentIndex + off;
+                if (idx >= 0 && idx < PIANO_SCALE.length) {
+                    const candidate = PIANO_SCALE[idx];
+                    if (pool.includes(candidate.name)) {
+                        candidates.push({ note: candidate, offset: off });
+                    }
                 }
+            }
+            // Also include unison? We skip unison for clarity.
+            if (candidates.length === 0) {
+                // Fallback: pick any other note in pool
+                const otherPool = pool.filter(n => n !== note1Name);
+                if (otherPool.length > 0) {
+                    const randName2 = otherPool[Math.floor(Math.random() * otherPool.length)];
+                    const note2 = PIANO_SCALE.find(n => n.name === randName2);
+                    // Determine if step or skip by chromatic distance (abs diff up to 2 => step, 3-4 => skip)
+                    const diff = Math.abs(PIANO_SCALE.indexOf(note1) - PIANO_SCALE.indexOf(note2));
+                    if (diff <= 2) intervalType = 'step';
+                    else intervalType = 'skip';
+                    intervalState.note1 = note1;
+                    intervalState.note2 = note2;
+                    intervalState.answer = intervalType;
+                    drawStaff();
+                    return;
+                } else {
+                    // No other note, pick again with a different starting note?
+                    newInterval();
+                    return;
+                }
+            }
 
-                // Set a short window (400ms) after the beat to accept late claps
-                // The clap button handler will handle late claps
+            // Pick a random candidate
+            const chosen = candidates[Math.floor(Math.random() * candidates.length)];
+            const note2 = chosen.note;
+            const absOffset = Math.abs(chosen.offset);
+            // For simplicity: offset of 2 semitones (major 2nd) -> step; offset of 3 (minor 3rd) -> skip; but also offset of 4 (major 3rd) is skip.
+            // We'll categorize: if absOffset <= 2 => step, else skip.
+            const isStep = absOffset <= 2;
+            intervalType = isStep ? 'step' : 'skip';
 
-                // Schedule next beat
-                scheduleBeat(startTime, beatIndex + 1);
+            intervalState.note1 = note1;
+            intervalState.note2 = note2;
+            intervalState.answer = intervalType;
 
-                // Allow claps for this beat during the beat window
-                // We'll handle this in the clap button handler
-
-            }, delay);
+            drawStaff();
+            document.getElementById('mascotPrompt').innerHTML =
+                `Are these two notes a <strong class="text-yellow-300">Step</strong> or a <strong class="text-pink-300">Skip</strong>?`;
         }
 
-        function evaluateClap(beatIndex, diff) {
-            // diff = clapTime - beatTime (negative = early, positive = late)
-            const absDiff = Math.abs(diff);
-
-            let result = 'miss';
-            if (absDiff <= 200) {
-                result = 'perfect';
-            } else if (absDiff <= 400) {
-                result = 'good';
-            } else {
-                result = 'miss';
-            }
-
-            rhythmState.results[beatIndex] = result;
-
-            // Update circle
-            const circle = document.getElementById(`beat${beatIndex}`);
-            circle.className = `beat-circle hit-${result}`;
-            if (result === 'perfect') {
-                circle.textContent = '⭐';
-                rhythmState.roundStars++;
-                document.getElementById('rhythmFeedback').textContent = '⭐ Perfect!';
-            } else if (result === 'good') {
-                circle.textContent = '👍';
-                document.getElementById('rhythmFeedback').textContent = '👍 Good!';
-            } else {
-                circle.textContent = '❌';
-                document.getElementById('rhythmFeedback').textContent = '❌ Try to tap on the beat!';
-            }
-
-            // Update round stars display
-            const stars = '⭐'.repeat(rhythmState.roundStars) + '☆'.repeat(4 - rhythmState.roundStars);
-            document.getElementById('rhythmRoundStars').textContent = stars;
-
-            // Add to total stars
-            if (result === 'perfect') {
-                starCount += 5;
-            } else if (result === 'good') {
-                starCount += 2;
-            }
-            document.getElementById('starCounter').innerText = starCount;
-
-            // Update mascot
-            if (result === 'perfect') {
-                document.getElementById('mascotPrompt').innerHTML =
-                    `<span class="text-emerald-600 font-black">⭐ Perfect timing!</span>`;
-            } else if (result === 'good') {
-                document.getElementById('mascotPrompt').innerHTML =
-                    `<span class="text-amber-600 font-black">👍 Good job, keep going!</span>`;
-            } else {
-                document.getElementById('mascotPrompt').innerHTML =
-                    `<span class="text-red-600 font-black">❌ Oops! Tap when the circle lights up!</span>`;
-            }
-
-            // Play feedback sound
-            if (result === 'perfect') {
-                playAudioFx('success');
-            } else if (result === 'miss') {
-                playAudioFx('mistake');
-            }
-        }
-
-        function handleClap() {
-            if (!rhythmState.isPlaying || rhythmState.isWaitingForNext) return;
-
-            const clapBtn = document.getElementById('clapBtn');
-            clapBtn.classList.add('clapping');
-            setTimeout(() => clapBtn.classList.remove('clapping'), 150);
-
-            // Add ripple effect
-            const ripple = clapBtn.querySelector('.ripple');
-            ripple.style.display = 'block';
-            ripple.style.animation = 'none';
-            setTimeout(() => {
-                ripple.style.animation = 'ripple 0.6s ease-out forwards';
-                setTimeout(() => {
-                    ripple.style.display = 'none';
-                }, 600);
-            }, 10);
-
-            const now = Date.now();
-            const currentBeat = rhythmState.beatIndex;
-
-            // Check if we already have a result for this beat
-            if (rhythmState.results[currentBeat] !== undefined) {
-                // This beat is already evaluated - ignore extra claps
-                // But we can still give feedback
-                document.getElementById('rhythmFeedback').textContent = '⏳ Wait for the next beat!';
+        function intervalGuess(guess) {
+            if (intervalState.locked) return;
+            if (!intervalState.note1 || !intervalState.note2) {
+                document.getElementById('intervalFeedback').textContent = 'Click "New Pair" first!';
                 return;
             }
 
-            // Check if we have a beat timestamp for this beat
-            if (rhythmState.beatTimestamps[currentBeat] !== undefined) {
-                // The beat has already happened - evaluate
-                const diff = now - rhythmState.beatTimestamps[currentBeat];
-                evaluateClap(currentBeat, diff);
+            intervalState.locked = true;
+            document.getElementById('stepBtn').disabled = true;
+            document.getElementById('skipBtn').disabled = true;
+
+            const correct = (guess === intervalState.answer);
+            const feedbackEl = document.getElementById('intervalFeedback');
+            if (correct) {
+                feedbackEl.textContent = '✅ Correct! ' + (guess === 'step' ? 'Step' : 'Skip') + '! Great job!';
+                feedbackEl.className = 'interval-feedback mt-1 text-emerald-300';
+                scoreSuccess();
+                // Add extra stars for interval
+                starCount += 5;
+                document.getElementById('starCounter').innerText = starCount;
+                document.getElementById('mascotPrompt').innerHTML =
+                    `<span class="text-emerald-600 font-black">⭐ Correct! ${guess === 'step' ? 'Step' : 'Skip'}!</span>`;
             } else {
-                // The beat hasn't happened yet - store the clap time
-                rhythmState.clapTimes[currentBeat] = now;
-                // Visual feedback: show that we registered a clap
-                document.getElementById('rhythmFeedback').textContent = '👏 Clap registered!';
-                // The beat handler will evaluate it when the beat arrives
-            }
-        }
-
-        function finishRhythmRound() {
-            rhythmState.isPlaying = false;
-            rhythmState.isWaitingForNext = true;
-
-            const clapBtn = document.getElementById('clapBtn');
-            clapBtn.disabled = true;
-            clapBtn.style.opacity = '0.5';
-
-            const totalStars = rhythmState.roundStars;
-            const feedback = totalStars === 4 ? '🎉 Perfect round! Amazing!' :
-                totalStars >= 2 ? '👏 Great job! Keep practicing!' :
-                '💪 Practice makes perfect! Try again!';
-
-            document.getElementById('rhythmFeedback').textContent = feedback + ` (${totalStars}/4)`;
-            document.getElementById('mascotPrompt').innerHTML =
-                `<span class="text-yellow-300 font-black">${feedback} ⭐${totalStars}</span>`;
-
-            // Auto-restart after 3 seconds
-            if (rhythmTimer) {
-                clearTimeout(rhythmTimer);
-                rhythmTimer = null;
+                feedbackEl.textContent = '❌ Oops! It was a ' + (intervalState.answer === 'step' ? 'Step' : 'Skip') + '. Try again!';
+                feedbackEl.className = 'interval-feedback mt-1 text-red-300';
+                scoreMistake();
+                document.getElementById('mascotPrompt').innerHTML =
+                    `<span class="text-red-600 font-black">❌ Not quite. It was a ${intervalState.answer === 'step' ? 'Step' : 'Skip'}.</span>`;
             }
 
+            // Auto new interval after delay
             setTimeout(() => {
-                rhythmState.isWaitingForNext = false;
-                document.getElementById('clapBtn').disabled = false;
-                document.getElementById('clapBtn').style.opacity = '1';
-                startRhythmGame();
-            }, 3000);
-        }
-
-        function stopRhythmGame() {
-            if (rhythmTimer) {
-                clearTimeout(rhythmTimer);
-                rhythmTimer = null;
-            }
-            rhythmState.isPlaying = false;
-            rhythmState.isWaitingForNext = false;
-            const clapBtn = document.getElementById('clapBtn');
-            clapBtn.disabled = true;
-            clapBtn.style.opacity = '0.5';
-            document.getElementById('rhythmFeedback').textContent = '⏸️ Click Start to play!';
+                if (currentMode === 'intervaltrainer') {
+                    newInterval();
+                }
+            }, 2000);
         }
 
         // ============================================================
         //  TAB SWITCHING
         // ============================================================
         function switchTab(mode) {
-            // Stop rhythm game if switching away
-            if (currentMode === 'rhythmclap' && mode !== 'rhythmclap') {
-                if (rhythmTimer) {
-                    clearTimeout(rhythmTimer);
-                    rhythmTimer = null;
-                }
-                rhythmState.isPlaying = false;
-                rhythmState.isWaitingForNext = false;
-            }
-
             currentMode = mode;
 
-            ['flashcards', 'keyfinder', 'melodyquest', 'rhythmclap'].forEach(m => {
+            ['flashcards', 'keyfinder', 'melodyquest', 'intervaltrainer'].forEach(m => {
                 const btn = document.getElementById(`tab-${m}`);
                 if (m === mode) {
                     btn.className =
@@ -1648,10 +1342,7 @@
             document.getElementById('flashcardControls').classList.toggle('hidden', mode !== 'flashcards');
             document.getElementById('keyfinderHUD').classList.toggle('hidden', mode !== 'keyfinder');
             document.getElementById('melodyquestHUD').classList.toggle('hidden', mode !== 'melodyquest');
-            document.getElementById('rhythmclapHUD').classList.toggle('hidden', mode !== 'rhythmclap');
-
-            // Show/hide beat circles
-            document.getElementById('rhythmBeatContainer').classList.toggle('hidden', mode !== 'rhythmclap');
+            document.getElementById('intervaltrainerHUD').classList.toggle('hidden', mode !== 'intervaltrainer');
 
             if (mode === 'flashcards') {
                 document.getElementById('mascotPrompt').innerHTML = "Look at the note on the lines. What letter is it?";
@@ -1666,39 +1357,20 @@
                 melodyQuestActiveSong = songList[0];
                 document.getElementById('songQuestTitle').innerText = melodyQuestActiveSong.title;
                 highlightMelodyNextStep();
-            } else if (mode === 'rhythmclap') {
-                document.getElementById('mascotPrompt').innerHTML = "Tap the 👏 button in time with the beat!";
-                // Reset beat circles
-                for (let i = 0; i < 4; i++) {
-                    const circle = document.getElementById(`beat${i}`);
-                    circle.className = 'beat-circle waiting';
-                    circle.textContent = i + 1;
-                }
-                document.getElementById('rhythmProgressBar').style.width = '0%';
-                document.getElementById('rhythmRoundStars').textContent = '☆☆☆☆';
-                document.getElementById('beatCounter').textContent = '1/4';
-                document.getElementById('rhythmFeedback').textContent = '👏 Tap the button in time!';
-
-                // Reset rhythm state
-                rhythmState.beatIndex = 0;
-                rhythmState.results = [];
-                rhythmState.clapTimes = [];
-                rhythmState.beatTimestamps = [];
-                rhythmState.roundStars = 0;
-                rhythmState.isPlaying = false;
-                rhythmState.isWaitingForNext = false;
-                rhythmState.progress = 0;
-
-                const clapBtn = document.getElementById('clapBtn');
-                clapBtn.disabled = false;
-                clapBtn.style.opacity = '1';
-
-                // Start the game automatically
-                setTimeout(startRhythmGame, 300);
-                drawStaff();
+            } else if (mode === 'intervaltrainer') {
+                document.getElementById('mascotPrompt').innerHTML = "Are the two notes a Step or a Skip?";
+                // Reset interval state
+                intervalState.note1 = null;
+                intervalState.note2 = null;
+                intervalState.answer = null;
+                intervalState.locked = false;
+                document.getElementById('stepBtn').disabled = false;
+                document.getElementById('skipBtn').disabled = false;
+                document.getElementById('intervalFeedback').textContent = 'Tap Step or Skip!';
+                document.getElementById('intervalFeedback').className = 'interval-feedback mt-1 text-amber-300';
+                newInterval();
             }
 
-            // Redraw staff for all modes
             drawStaff();
         }
 
@@ -1723,16 +1395,6 @@
         window.addEventListener('orientationchange', handleResize);
 
         // ============================================================
-        //  CLAP BUTTON EVENT
-        // ============================================================
-        document.getElementById('clapBtn').addEventListener('pointerdown', function(e) {
-            e.preventDefault();
-            if (!this.disabled) {
-                handleClap();
-            }
-        });
-
-        // ============================================================
         //  INIT
         // ============================================================
         window.onload = function() {
@@ -1740,16 +1402,6 @@
             renderPiano();
             // Default to Note Matcher
             switchTab('flashcards');
-
-            // Set up beat container after load
-            const beatContainer = document.getElementById('rhythmBeatContainer');
-            for (let i = 0; i < 4; i++) {
-                const circle = document.createElement('div');
-                circle.className = 'beat-circle waiting';
-                circle.id = `beat${i}`;
-                circle.textContent = i + 1;
-                beatContainer.appendChild(circle);
-            }
         };
     </script>
 </body>
