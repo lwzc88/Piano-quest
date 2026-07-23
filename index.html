@@ -221,20 +221,22 @@
             font-weight: 700;
             text-align: center;
         }
+
+        /* Bigger Listen button, with more spacing */
         .listen-btn {
-            background: rgba(99, 102, 241, 0.8);
+            background: rgba(99, 102, 241, 0.85);
             color: white;
-            padding: 0.3rem 1rem;
+            padding: 0.6rem 2rem;
             border-radius: 9999px;
-            font-weight: 700;
-            font-size: 0.8rem;
+            font-weight: 800;
+            font-size: 1rem;
             border: none;
             transition: all 0.1s ease;
             cursor: pointer;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
             display: inline-flex;
             align-items: center;
-            gap: 0.4rem;
+            gap: 0.6rem;
         }
         .listen-btn:active {
             transform: scale(0.95);
@@ -243,6 +245,9 @@
         .listen-btn:disabled {
             opacity: 0.4;
             pointer-events: none;
+        }
+        .listen-btn i {
+            font-size: 1.2rem;
         }
     </style>
 </head>
@@ -384,12 +389,13 @@
                         <button id="stepBtn" class="interval-btn step-btn flex-1" onclick="intervalGuess('step')">Step</button>
                         <button id="skipBtn" class="interval-btn skip-btn flex-1" onclick="intervalGuess('skip')">Skip</button>
                     </div>
-                    <div class="flex gap-2 mt-1 justify-center">
+                    <!-- Listen button with extra margin-top (mt-3) and bigger size -->
+                    <div class="flex gap-2 mt-3 justify-center">
                         <button id="listenBtn" class="listen-btn" onclick="playIntervalNotes()">
                             <i class="fa-solid fa-ear-listen"></i> Listen
                         </button>
                     </div>
-                    <div id="intervalFeedback" class="interval-feedback mt-1 text-amber-300">Tap Step or Skip!</div>
+                    <div id="intervalFeedback" class="interval-feedback mt-2 text-amber-300">Tap Step or Skip!</div>
                 </div>
             </div>
         </div>
@@ -1206,22 +1212,19 @@
         function playIntervalNotes() {
             if (!intervalState.note1 || !intervalState.note2) return;
             initAudioEngine();
-            // Play first note
             playNoteAudio(intervalState.note1.freq);
-            // Play second note after a short pause (400ms)
             setTimeout(() => {
                 playNoteAudio(intervalState.note2.freq);
             }, 400);
         }
 
         function newInterval() {
-            // Reset lock and buttons
             intervalState.locked = false;
             document.getElementById('stepBtn').disabled = false;
             document.getElementById('skipBtn').disabled = false;
             document.getElementById('listenBtn').disabled = false;
             document.getElementById('intervalFeedback').textContent = 'Tap Step or Skip!';
-            document.getElementById('intervalFeedback').className = 'interval-feedback mt-1 text-amber-300';
+            document.getElementById('intervalFeedback').className = 'interval-feedback mt-2 text-amber-300';
 
             const pool = getNotePool();
             if (pool.length < 2) {
@@ -1229,13 +1232,11 @@
                 return;
             }
 
-            // Pick a random starting note index
             const startIdx = Math.floor(Math.random() * pool.length);
             const note1Name = pool[startIdx];
             const note1 = PIANO_SCALE.find(n => n.name === note1Name);
             if (!note1) return;
 
-            // Find candidates within ±2 or ±3 semitones
             const currentIndex = PIANO_SCALE.indexOf(note1);
             const candidates = [];
             const offsets = [2, 3, -2, -3];
@@ -1300,8 +1301,7 @@
 
             if (correct) {
                 feedbackEl.textContent = `✅ Correct! That's a ${intervalName}! Great job!`;
-                feedbackEl.className = 'interval-feedback mt-1 text-emerald-300';
-                // Add stars
+                feedbackEl.className = 'interval-feedback mt-2 text-emerald-300';
                 starCount += 10;
                 streakCount += 1;
                 document.getElementById('starCounter').innerText = starCount;
@@ -1311,7 +1311,7 @@
                     `<span class="text-emerald-600 font-black">⭐ Correct! ${intervalName}!</span>`;
             } else {
                 feedbackEl.textContent = `❌ Oops! That was a ${intervalName}. Try again!`;
-                feedbackEl.className = 'interval-feedback mt-1 text-red-300';
+                feedbackEl.className = 'interval-feedback mt-2 text-red-300';
                 streakCount = 0;
                 document.getElementById('streakCounter').innerText = streakCount;
                 playAudioFx('mistake');
@@ -1319,7 +1319,6 @@
                     `<span class="text-red-600 font-black">❌ Not quite. It was a ${intervalName}.</span>`;
             }
 
-            // Auto new interval after delay
             setTimeout(() => {
                 if (currentMode === 'intervaltrainer') {
                     newInterval();
@@ -1344,7 +1343,6 @@
                 }
             });
 
-            // Show/hide piano – hide for Note Matcher and Interval Trainer
             const pianoSec = document.getElementById('pianoSection');
             if (mode === 'flashcards' || mode === 'intervaltrainer') {
                 pianoSec.classList.add('hidden');
@@ -1353,7 +1351,6 @@
                 setTimeout(renderPiano, 50);
             }
 
-            // Show/hide HUDs
             document.getElementById('flashcardControls').classList.toggle('hidden', mode !== 'flashcards');
             document.getElementById('keyfinderHUD').classList.toggle('hidden', mode !== 'keyfinder');
             document.getElementById('melodyquestHUD').classList.toggle('hidden', mode !== 'melodyquest');
@@ -1382,7 +1379,7 @@
                 document.getElementById('skipBtn').disabled = false;
                 document.getElementById('listenBtn').disabled = false;
                 document.getElementById('intervalFeedback').textContent = 'Tap Step or Skip!';
-                document.getElementById('intervalFeedback').className = 'interval-feedback mt-1 text-amber-300';
+                document.getElementById('intervalFeedback').className = 'interval-feedback mt-2 text-amber-300';
                 newInterval();
             }
 
@@ -1415,7 +1412,6 @@
         window.onload = function() {
             document.getElementById('rangeSelector').value = 'level1';
             renderPiano();
-            // Default to Note Matcher
             switchTab('flashcards');
         };
     </script>
