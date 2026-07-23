@@ -187,7 +187,7 @@
             touch-action: manipulation;
             cursor: pointer;
             border: none;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -222,7 +222,6 @@
             text-align: center;
         }
 
-        /* Bigger Listen button, with more spacing */
         .listen-btn {
             background: rgba(99, 102, 241, 0.85);
             color: white;
@@ -233,7 +232,7 @@
             border: none;
             transition: all 0.1s ease;
             cursor: pointer;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
             display: inline-flex;
             align-items: center;
             gap: 0.6rem;
@@ -389,7 +388,6 @@
                         <button id="stepBtn" class="interval-btn step-btn flex-1" onclick="intervalGuess('step')">Step</button>
                         <button id="skipBtn" class="interval-btn skip-btn flex-1" onclick="intervalGuess('skip')">Skip</button>
                     </div>
-                    <!-- Listen button with extra margin-top (mt-3) and bigger size -->
                     <div class="flex gap-2 mt-3 justify-center">
                         <button id="listenBtn" class="listen-btn" onclick="playIntervalNotes()">
                             <i class="fa-solid fa-ear-listen"></i> Listen
@@ -401,7 +399,7 @@
         </div>
     </div>
 
-    <!-- PIANO SECTION (hidden in Interval Trainer) -->
+    <!-- PIANO SECTION (hidden in Note Matcher & Interval Trainer) -->
     <div id="pianoSection" class="piano-section bg-white border-2 border-indigo-100 rounded-xl shadow-sm px-1.5 py-1.5 z-30 relative">
         <div id="pianoContainer" class="flex relative select-none h-full" style="min-width: max-content;">
             <!-- Dynamic piano keys generated via JS -->
@@ -754,7 +752,7 @@
         let intervalState = {
             note1: null,
             note2: null,
-            answer: null, // 'step' or 'skip'
+            answer: null,
             locked: false,
         };
 
@@ -1135,7 +1133,6 @@
                     const n2 = intervalState.note2;
                     drawSingleNoteHead(ctx, n1, x1, startY, staffSpacing, false, false, '#0f172a', true);
                     drawSingleNoteHead(ctx, n2, x2, startY, staffSpacing, false, false, '#0f172a', true);
-                    // Draw a connecting line
                     ctx.save();
                     ctx.setLineDash([3, 4]);
                     ctx.strokeStyle = '#94a3b8';
