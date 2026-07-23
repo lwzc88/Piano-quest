@@ -131,6 +131,24 @@
         .melody-dot {
             transition: all 0.15s ease;
         }
+
+        /* Purple panel: center text vertically */
+        .hud-container {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            flex: 1;
+        }
+        .hud-container>* {
+            flex-shrink: 0;
+        }
+        /* For the flashcard buttons, we want them centered but with a bit of spacing */
+        .flashcard-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 0.25rem;
+            width: 100%;
+        }
     </style>
 </head>
 <body class="h-full w-full text-slate-800 antialiased flex flex-col p-2 pt-3 pb-3 gap-2 box-border">
@@ -236,10 +254,10 @@
                     </div>
                 </div>
 
-                <!-- Note Matcher Mode (Mode 2) Buttons -->
-                <div id="flashcardControls" class="hidden space-y-1 flex-1 flex flex-col justify-start mt-1">
+                <!-- HUD containers – vertically centered -->
+                <div id="flashcardControls" class="hidden hud-container mt-1">
                     <p class="text-[9px] font-black text-indigo-200 text-center uppercase">Tap the note name:</p>
-                    <div class="grid grid-cols-4 gap-1">
+                    <div class="flashcard-grid">
                         <button id="btn-C" onclick="makeLetterGuess('C', 'btn-C')" class="letter-btn py-1.5 bg-white text-indigo-800 font-black text-xs rounded shadow-sm">C</button>
                         <button id="btn-D" onclick="makeLetterGuess('D', 'btn-D')" class="letter-btn py-1.5 bg-white text-indigo-800 font-black text-xs rounded shadow-sm">D</button>
                         <button id="btn-E" onclick="makeLetterGuess('E', 'btn-E')" class="letter-btn py-1.5 bg-white text-indigo-800 font-black text-xs rounded shadow-sm">E</button>
@@ -251,14 +269,12 @@
                     </div>
                 </div>
 
-                <!-- Key Finder HUD (Mode 3) -->
-                <div id="keyfinderHUD" class="hidden bg-indigo-950/40 p-2 rounded-lg text-center flex-1 flex flex-col justify-start border border-indigo-300/20 mt-1">
+                <div id="keyfinderHUD" class="hidden hud-container bg-indigo-950/40 p-2 rounded-lg text-center border border-indigo-300/20 mt-1">
                     <p class="text-[9px] font-black text-indigo-200 uppercase">Key Finder Challenge</p>
                     <p class="text-[11px] font-black text-amber-300 mt-0.5">Find & tap the key on the piano!</p>
                 </div>
 
-                <!-- Melody Quest HUD (Mode 4) -->
-                <div id="melodyquestHUD" class="hidden bg-indigo-950/40 p-1.5 rounded-lg text-center flex-1 flex flex-col justify-start border border-indigo-300/20 mt-1">
+                <div id="melodyquestHUD" class="hidden hud-container bg-indigo-950/40 p-1.5 rounded-lg text-center border border-indigo-300/20 mt-1">
                     <p id="songQuestTitle" class="text-[11px] font-black text-yellow-300 truncate">Song Title</p>
                     <div id="melodySequenceWrapper" class="flex items-center justify-center gap-1 py-1 flex-wrap"></div>
                     <button onclick="skipSong()" class="mx-auto px-3 py-0.5 bg-purple-500/80 active:bg-purple-400 text-white font-bold text-[9px] rounded">Skip Song</button>
@@ -650,7 +666,7 @@
             }
         }
 
-        function drawSingleNoteHead(ctx, noteData, noteX, startY, staffSpacing, isActive, isPlayed) {
+        function drawSingleNoteHead(ctx, noteData, noteX, startY, staffSpacing, isActive, isPlayed, colorOverride) {
             const bottomStaffY = startY + 4 * staffSpacing;
             const step = (currentClef === 'treble') ? noteData.trebleStep : noteData.bassStep;
             const noteY = bottomStaffY - step * (staffSpacing / 2);
@@ -679,19 +695,24 @@
             }
 
             // Note head color
+            let fillColor = '#0f172a';
             if (currentMode === 'melodyquest') {
                 if (isActive) {
-                    ctx.save();
-                    ctx.shadowColor = '#fbbf24';
-                    ctx.shadowBlur = 10;
-                    ctx.fillStyle = '#db2777';
+                    fillColor = '#db2777'; // pink
                 } else if (isPlayed) {
-                    ctx.fillStyle = '#cbd5e1';
+                    fillColor = '#cbd5e1'; // gray
                 } else {
-                    ctx.fillStyle = '#0f172a';
+                    fillColor = '#0f172a';
                 }
-            } else {
-                ctx.fillStyle = '#0f172a';
+            }
+            if (colorOverride) fillColor = colorOverride;
+
+            ctx.fillStyle = fillColor;
+
+            if (isActive && currentMode === 'melodyquest') {
+                ctx.save();
+                ctx.shadowColor = '#fbbf24';
+                ctx.shadowBlur = 10;
             }
 
             ctx.save();
@@ -708,10 +729,13 @@
 
             if (noteData.isBlack) {
                 ctx.font = 'bold 18px Quicksand, sans-serif';
+                ctx.fillStyle = '#0f172a';
                 ctx.fillText('♯', noteX - 18, noteY + 5);
             }
 
+            // Stem
             ctx.strokeStyle = (currentMode === 'melodyquest' && isPlayed) ? '#cbd5e1' : '#0f172a';
+            ctx.lineWidth = 2;
             ctx.beginPath();
             if (step >= 4) {
                 ctx.moveTo(noteX - 7, noteY);
@@ -721,6 +745,9 @@
                 ctx.lineTo(noteX + 7, noteY - 26);
             }
             ctx.stroke();
+
+            // Return the Y position for possible line drawing
+            return noteY;
         }
 
         function drawStaff() {
@@ -735,6 +762,7 @@
             const midY = canvas.height / 2;
             const startY = midY - (staffSpacing * 2);
 
+            // Draw staff lines
             ctx.strokeStyle = '#818cf8';
             ctx.lineWidth = 1.5;
             for (let i = 0; i < 5; i++) {
@@ -745,6 +773,7 @@
                 ctx.stroke();
             }
 
+            // Clef
             ctx.fillStyle = '#6366f1';
             ctx.font = 'bold 38px Quicksand, Arial';
             ctx.textAlign = 'center';
@@ -759,20 +788,57 @@
                 const startNoteX = 130;
                 const spacingX = 75;
 
+                // First, collect note positions for dotted lines
+                const notePositions = [];
                 for (let i = 0; i < notesPerPhrase; i++) {
                     const seqIdx = startIdx + i;
                     if (seqIdx >= seq.length) break;
-
                     const noteData = PIANO_SCALE.find(n => n.name === seq[seqIdx]);
                     if (!noteData) continue;
-
                     const noteX = startNoteX + i * spacingX;
+                    const bottomStaffY = startY + 4 * staffSpacing;
+                    const step = (currentClef === 'treble') ? noteData.trebleStep : noteData.bassStep;
+                    const noteY = bottomStaffY - step * (staffSpacing / 2);
                     const isActive = (seqIdx === melodyQuestProgress);
                     const isPlayed = (seqIdx < melodyQuestProgress);
-
-                    drawSingleNoteHead(ctx, noteData, noteX, startY, staffSpacing, isActive, isPlayed);
+                    notePositions.push({ noteData, noteX, noteY, isActive, isPlayed, seqIdx });
                 }
+
+                // Draw dotted lines connecting consecutive notes (except between played and upcoming)
+                // We'll draw lines between all notes in the phrase that are not separated by a gap
+                if (notePositions.length > 1) {
+                    ctx.save();
+                    ctx.setLineDash([4, 6]);
+                    ctx.lineWidth = 2;
+                    ctx.strokeStyle = '#a78bfa'; // soft purple
+                    ctx.globalAlpha = 0.6;
+                    for (let i = 0; i < notePositions.length - 1; i++) {
+                        const from = notePositions[i];
+                        const to = notePositions[i + 1];
+                        // Draw if both are either played or active (i.e., not grayed out)
+                        // But we want to show lines for all notes in the phrase, even if some are played and some not.
+                        // However, to avoid clutter, we'll only draw lines between consecutive notes that are either played or active.
+                        // But the user wants to see direction, so draw for all pairs where the second is not before the first.
+                        // Actually, we'll draw for all pairs, but maybe make the line faint for future notes.
+                        // Let's draw lines between all notes in the phrase, using a different style for future notes.
+                        const isFuture = (from.seqIdx >= melodyQuestProgress && to.seqIdx >= melodyQuestProgress);
+                        ctx.globalAlpha = isFuture ? 0.3 : 0.7;
+                        ctx.strokeStyle = isFuture ? '#94a3b8' : '#a78bfa';
+                        ctx.beginPath();
+                        ctx.moveTo(from.noteX, from.noteY);
+                        ctx.lineTo(to.noteX, to.noteY);
+                        ctx.stroke();
+                    }
+                    ctx.restore();
+                }
+
+                // Now draw the note heads on top
+                notePositions.forEach(({ noteData, noteX, noteY, isActive, isPlayed, seqIdx }) => {
+                    drawSingleNoteHead(ctx, noteData, noteX, startY, staffSpacing, isActive, isPlayed);
+                });
+
             } else if (selectedNote) {
+                // Single note for explore/keyfinder/flashcard
                 drawSingleNoteHead(ctx, selectedNote, canvas.width / 2, startY, staffSpacing, false, false);
             }
         }
@@ -850,7 +916,6 @@
                 pianoSec.classList.add('hidden');
             } else {
                 pianoSec.classList.remove('hidden');
-                // Re-render piano when showing it again
                 setTimeout(renderPiano, 50);
             }
 
@@ -900,7 +965,6 @@
         //  INIT
         // ============================================================
         window.onload = function() {
-            // Set initial level dropdown
             document.getElementById('rangeSelector').value = 'level1';
             renderPiano();
             switchTab('explore');
