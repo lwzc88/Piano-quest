@@ -31,45 +31,60 @@
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         
+        /* Key Shadows */
         .white-key-shadow {
-            box-shadow: 0 4px 0px #cbd5e1, 0 4px 6px rgba(0, 0, 0, 0.08);
+            box-shadow: 0 5px 0px #cbd5e1, 0 6px 8px rgba(0, 0, 0, 0.08);
         }
         .white-key-shadow:active, .white-key-shadow.active {
-            transform: translateY(3px);
+            transform: translateY(4px);
             box-shadow: 0 1px 0px #cbd5e1;
             background-color: #f1f5f9 !important;
         }
         .black-key-shadow {
-            box-shadow: 0 3px 0px #0f172a, 0 3px 5px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 4px 0px #0f172a, 0 5px 7px rgba(0, 0, 0, 0.2);
         }
         .black-key-shadow:active, .black-key-shadow.active {
-            transform: translateY(2px) scaleX(0.97);
+            transform: translateY(3px);
             box-shadow: 0 1px 0px #0f172a;
             background-color: #334155 !important;
         }
+        /* Note Matcher Button Animation */
+        .letter-btn { transition: all 0.1s ease; }
+        .letter-btn.pressed { transform: scale(0.9); background-color: #fcd34d !important; color: #78350f !important; }
+        
+        @keyframes pulse-fast {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        .animate-pulse-fast { animation: pulse-fast 1s infinite; }
     </style>
 </head>
 <body class="h-full w-full text-slate-800 antialiased flex flex-col justify-between p-2 pt-3 pb-3 gap-2 box-border">
 
     <!-- Sound Activation Overlay -->
-    <div id="audioUnlockOverlay" class="fixed inset-0 bg-indigo-950/85 backdrop-blur-md z-[100] flex flex-col items-center justify-center p-4 text-center">
-        <div class="bg-white rounded-3xl p-6 max-w-sm shadow-2xl border-4 border-amber-300 space-y-3">
-            <div class="text-4xl">🎹✨</div>
+    <div id="audioUnlockOverlay" class="fixed inset-0 bg-indigo-950/90 backdrop-blur-md z-[100] flex flex-col items-center justify-center p-4 text-center">
+        <div class="bg-white rounded-3xl p-6 max-w-sm shadow-2xl border-4 border-amber-300 space-y-4">
+            <div class="text-5xl">🎹✨</div>
             <h2 class="text-xl font-black header-font text-indigo-700">Ready to Play?</h2>
-            <p class="text-xs font-bold text-slate-600">Tap below to turn on piano sound for iPad!</p>
+            
+            <div class="bg-red-50 border border-red-200 p-3 rounded-xl text-left">
+                <p class="text-xs font-black text-red-600 animate-pulse-fast mb-1"><i class="fa-solid fa-volume-high"></i> IMPORTANT FOR iPAD:</p>
+                <p class="text-[10px] font-bold text-slate-700 leading-tight">Piano sounds will <strong>NOT</strong> play if your device is on Silent Mode. Please flip the switch on the side of your iPad or turn off Silent Mode in Control Center!</p>
+            </div>
+
             <button id="btnUnlockAudio" class="w-full py-3 bg-gradient-to-r from-pink-500 to-indigo-600 text-white font-black text-sm rounded-2xl shadow-md active:scale-95 transition">
                 Start Quest! 🚀
             </button>
         </div>
     </div>
 
-    <!-- Header bar with dynamic iPad viewport spacing -->
-    <header class="bg-white/95 backdrop-blur-md border-b-2 border-amber-300 rounded-xl px-2.5 py-1 shrink-0 shadow-sm flex items-center justify-between gap-1.5 z-40">
+    <!-- Header bar -->
+    <header class="bg-white/95 backdrop-blur-md border-b-2 border-amber-300 rounded-xl px-2.5 py-1.5 shrink-0 shadow-sm flex items-center justify-between gap-1.5 z-40">
         <div class="flex items-center gap-1.5 shrink-0">
             <div class="p-1 bg-gradient-to-tr from-pink-400 to-indigo-500 text-white rounded-lg shadow-sm">
                 <i class="fa-solid fa-music text-xs"></i>
             </div>
-            <h1 class="text-xs sm:text-sm font-black header-font text-indigo-600 tracking-tight">Piano Quest! 🎹</h1>
+            <h1 class="text-xs sm:text-sm font-black header-font text-indigo-600 tracking-tight">Piano Quest!</h1>
         </div>
 
         <!-- Mode Nav Buttons -->
@@ -102,12 +117,12 @@
         </div>
     </header>
 
-    <!-- Balanced Main Workspace Proportions -->
-    <div class="flex-1 grid grid-cols-12 gap-2 min-h-0 overflow-hidden items-stretch">
+    <!-- Layout Proportions - Top section reduced height (h-[155px]), Keyboard gets rest of screen -->
+    <div class="grid grid-cols-12 gap-2 shrink-0 h-[155px] overflow-hidden items-stretch">
         
         <!-- Left: Music Staff Canvas Frame -->
-        <div class="col-span-7 bg-white border-2 border-indigo-100 rounded-xl shadow-sm p-2 flex flex-col justify-between overflow-hidden relative">
-            <div class="flex items-center justify-between gap-1 border-b border-slate-100 pb-1 shrink-0">
+        <div class="col-span-7 bg-white border-2 border-indigo-100 rounded-xl shadow-sm p-1.5 flex flex-col justify-between overflow-hidden relative">
+            <div class="flex items-center justify-between gap-1 border-b border-slate-100 pb-1 shrink-0 px-1">
                 <div class="flex items-center gap-1">
                     <span class="text-[9px] font-black text-slate-400 uppercase">Clef:</span>
                     <button onclick="setClef('treble')" id="btnClefTreble" class="px-2 py-0.5 text-[9px] font-bold rounded bg-indigo-100 text-indigo-700">Treble 𝄞</button>
@@ -125,7 +140,7 @@
             </div>
 
             <!-- Canvas Block -->
-            <div class="flex-1 flex items-center justify-center bg-slate-50/50 rounded-lg my-1 relative overflow-hidden border border-dashed border-indigo-100 min-h-0">
+            <div class="flex-1 flex items-center justify-center bg-slate-50/50 rounded-lg relative overflow-hidden border border-dashed border-indigo-100 min-h-0 mt-1">
                 <canvas id="staffCanvas" width="480" height="110" class="max-w-full max-h-full block"></canvas>
                 <div id="incorrectIndicator" class="hidden absolute inset-0 bg-red-500/10 border border-red-500/30 rounded-lg flex items-center justify-center pointer-events-none">
                     <span class="bg-white px-3 py-1 rounded-lg text-xs font-black text-red-600 shadow">Try again! 🧸</span>
@@ -134,11 +149,12 @@
         </div>
 
         <!-- Right: Mascot & Game HUD Controls -->
-        <div class="col-span-5 bg-gradient-to-b from-indigo-600 to-purple-600 text-white rounded-xl shadow-sm p-2.5 flex flex-col justify-between overflow-hidden">
-            <div class="bg-white text-slate-800 p-2 rounded-lg shadow-sm flex items-start gap-2 shrink-0">
+        <div class="col-span-5 bg-gradient-to-b from-indigo-600 to-purple-600 text-white rounded-xl shadow-sm p-2 flex flex-col justify-between overflow-hidden">
+            <!-- Mascot Prompt Box -->
+            <div class="bg-white text-slate-800 p-1.5 rounded-lg shadow-sm flex items-center gap-2 shrink-0">
                 <span class="text-xl shrink-0" id="mascotEmoji">🦁</span>
                 <div class="overflow-hidden">
-                    <h4 class="font-black text-[9px] text-indigo-700 uppercase" id="mascotName">Leo the Lion:</h4>
+                    <h4 class="font-black text-[9px] text-indigo-700 uppercase leading-none" id="mascotName">Leo the Lion:</h4>
                     <p id="mascotPrompt" class="text-[10px] font-bold leading-tight text-slate-600 mt-0.5">
                         Touch any piano key below to play sound!
                     </p>
@@ -149,38 +165,41 @@
             <div id="flashcardControls" class="hidden space-y-1 my-auto">
                 <p class="text-[9px] font-black text-indigo-200 text-center uppercase">Tap the note name:</p>
                 <div class="grid grid-cols-4 gap-1">
-                    <button onclick="makeLetterGuess('C')" class="py-2 bg-white active:bg-amber-100 text-indigo-800 font-black text-xs rounded shadow-sm">C</button>
-                    <button onclick="makeLetterGuess('D')" class="py-2 bg-white active:bg-amber-100 text-indigo-800 font-black text-xs rounded shadow-sm">D</button>
-                    <button onclick="makeLetterGuess('E')" class="py-2 bg-white active:bg-amber-100 text-indigo-800 font-black text-xs rounded shadow-sm">E</button>
-                    <button onclick="makeLetterGuess('F')" class="py-2 bg-white active:bg-amber-100 text-indigo-800 font-black text-xs rounded shadow-sm">F</button>
-                    <button onclick="makeLetterGuess('G')" class="py-2 bg-white active:bg-amber-100 text-indigo-800 font-black text-xs rounded shadow-sm">G</button>
-                    <button onclick="makeLetterGuess('A')" class="py-2 bg-white active:bg-amber-100 text-indigo-800 font-black text-xs rounded shadow-sm">A</button>
-                    <button onclick="makeLetterGuess('B')" class="py-2 bg-white active:bg-amber-100 text-indigo-800 font-black text-xs rounded shadow-sm">B</button>
-                    <button onclick="chooseNewTarget()" class="py-2 bg-purple-400 text-white font-extrabold text-[9px] rounded shadow-sm">Skip</button>
+                    <button id="btn-C" onclick="makeLetterGuess('C', 'btn-C')" class="letter-btn py-1.5 bg-white text-indigo-800 font-black text-xs rounded shadow-sm">C</button>
+                    <button id="btn-D" onclick="makeLetterGuess('D', 'btn-D')" class="letter-btn py-1.5 bg-white text-indigo-800 font-black text-xs rounded shadow-sm">D</button>
+                    <button id="btn-E" onclick="makeLetterGuess('E', 'btn-E')" class="letter-btn py-1.5 bg-white text-indigo-800 font-black text-xs rounded shadow-sm">E</button>
+                    <button id="btn-F" onclick="makeLetterGuess('F', 'btn-F')" class="letter-btn py-1.5 bg-white text-indigo-800 font-black text-xs rounded shadow-sm">F</button>
+                    <button id="btn-G" onclick="makeLetterGuess('G', 'btn-G')" class="letter-btn py-1.5 bg-white text-indigo-800 font-black text-xs rounded shadow-sm">G</button>
+                    <button id="btn-A" onclick="makeLetterGuess('A', 'btn-A')" class="letter-btn py-1.5 bg-white text-indigo-800 font-black text-xs rounded shadow-sm">A</button>
+                    <button id="btn-B" onclick="makeLetterGuess('B', 'btn-B')" class="letter-btn py-1.5 bg-white text-indigo-800 font-black text-xs rounded shadow-sm">B</button>
+                    <button onclick="chooseNewTarget()" class="py-1.5 bg-purple-400 active:bg-purple-300 text-white font-extrabold text-[9px] rounded shadow-sm">Skip</button>
                 </div>
             </div>
 
             <!-- Key Finder HUD (Mode 3) -->
             <div id="keyfinderHUD" class="hidden bg-indigo-950/40 p-2 rounded-lg text-center my-auto border border-indigo-300/20">
                 <p class="text-[9px] font-black text-indigo-200 uppercase">Key Finder Challenge</p>
-                <p class="text-xs font-black text-amber-300 mt-0.5">Find & tap the key on the piano!</p>
+                <p class="text-[11px] font-black text-amber-300 mt-0.5">Find & tap the key on the piano!</p>
             </div>
 
-            <!-- Melody Quest HUD (Mode 4) displaying notes phrase by phrase -->
-            <div id="melodyquestHUD" class="hidden bg-indigo-950/40 p-2 rounded-lg text-center my-auto border border-indigo-300/20 space-y-1">
-                <p id="songQuestTitle" class="text-xs font-black text-yellow-300">Song Title</p>
-                <div id="melodySequenceWrapper" class="flex items-center justify-center gap-1 py-0.5"></div>
-                <button onclick="skipSong()" class="px-2 py-0.5 bg-purple-500/60 text-white font-bold text-[9px] rounded">Skip Song</button>
+            <!-- Melody Quest HUD (Mode 4) -->
+            <div id="melodyquestHUD" class="hidden bg-indigo-950/40 p-1.5 rounded-lg text-center my-auto border border-indigo-300/20 flex flex-col justify-center">
+                <p id="songQuestTitle" class="text-[11px] font-black text-yellow-300 truncate">Song Title</p>
+                <div id="melodySequenceWrapper" class="flex items-center justify-center gap-1 py-1"></div>
+                <button onclick="skipSong()" class="mx-auto px-3 py-0.5 bg-purple-500/80 active:bg-purple-400 text-white font-bold text-[9px] rounded">Skip Song</button>
             </div>
         </div>
     </div>
 
-    <!-- Piano Keyboard Section -->
-    <div id="pianoSection" class="bg-white border-2 border-indigo-100 rounded-xl shadow-sm px-1.5 py-1 shrink-0 h-[115px] z-30">
-        <div id="pianoContainer" class="flex justify-center relative select-none min-w-[540px] h-full"></div>
+    <!-- Piano Keyboard Section sized to take remaining height completely -->
+    <div id="pianoSection" class="flex-1 bg-white border-2 border-indigo-100 rounded-xl shadow-sm px-1.5 py-1.5 z-30 overflow-x-auto no-scrollbar relative">
+        <div id="pianoContainer" class="flex relative select-none h-full mx-auto" style="min-width: max-content;">
+            <!-- Dynamic piano keys generated via JS (White and Black separated in DOM) -->
+        </div>
     </div>
 
     <script>
+        // Audio Reliability Update
         let audioCtx = null;
 
         function initAudioEngine() {
@@ -208,14 +227,13 @@
             document.getElementById('audioUnlockOverlay').style.display = 'none';
         }
 
-        document.getElementById('btnUnlockAudio').addEventListener('click', unlockAudioContext);
-        document.getElementById('audioUnlockOverlay').addEventListener('touchstart', unlockAudioContext, { passive: true });
+        // Only attach pointerdown to prevent double-firing with touchstart
+        document.getElementById('btnUnlockAudio').addEventListener('pointerdown', unlockAudioContext);
 
         function playNoteAudio(freq) {
             try {
                 const ctx = initAudioEngine();
                 if (!ctx) return;
-
                 const now = ctx.currentTime;
                 const osc = ctx.createOscillator();
                 const gain = ctx.createGain();
@@ -224,14 +242,13 @@
                 osc.frequency.setValueAtTime(freq, now);
 
                 gain.gain.setValueAtTime(0, now);
-                gain.gain.linearRampToValueAtTime(0.35, now + 0.02);
-                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.9);
+                gain.gain.linearRampToValueAtTime(0.4, now + 0.02);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.8);
 
                 osc.connect(gain);
                 gain.connect(ctx.destination);
-
                 osc.start(now);
-                osc.stop(now + 0.95);
+                osc.stop(now + 0.85);
             } catch (e) {}
         }
 
@@ -332,46 +349,61 @@
         let starCount = 0;
         let streakCount = 0;
 
+        // Melody Quest Keyboard Bug (Separate black and white keys in DOM)
         function renderPiano() {
             const container = document.getElementById('pianoContainer');
             container.innerHTML = '';
+            
             const whiteKeys = PIANO_SCALE.filter(n => !n.isBlack);
-
-            whiteKeys.forEach((keyData) => {
+            const wKeyWidth = 46; // px
+            container.style.width = `${whiteKeys.length * wKeyWidth}px`;
+            
+            whiteKeys.forEach((keyData, index) => {
                 const whiteKeyNode = document.createElement('div');
-                whiteKeyNode.className = `white-key-shadow relative bg-white border border-slate-300 rounded-b-lg cursor-pointer flex flex-col justify-end items-center pb-1.5 select-none z-10`;
-                whiteKeyNode.style.width = '35px';
+                whiteKeyNode.className = `white-key-shadow relative bg-white border border-slate-300 rounded-b-xl cursor-pointer flex flex-col justify-end items-center pb-2 select-none z-10`;
+                whiteKeyNode.style.width = `${wKeyWidth}px`;
                 whiteKeyNode.style.height = '100%';
 
                 const handleTap = (e) => {
                     e.preventDefault();
                     initAudioEngine();
+                    
+                    whiteKeyNode.classList.add('active');
+                    setTimeout(() => whiteKeyNode.classList.remove('active'), 150);
+                    
                     onKeyTouch(keyData);
                 };
                 whiteKeyNode.addEventListener('pointerdown', handleTap);
-                whiteKeyNode.addEventListener('touchstart', handleTap, { passive: false });
+
+                container.appendChild(whiteKeyNode);
 
                 const sharpNeighbors = ['C', 'D', 'F', 'G', 'A'];
                 if (sharpNeighbors.includes(keyData.label) && keyData.name !== 'C5') {
                     const sharpData = PIANO_SCALE.find(n => n.name === `${keyData.label}#${keyData.octave}`);
                     if (sharpData) {
                         const blackKeyNode = document.createElement('div');
-                        blackKeyNode.className = "black-key-shadow absolute top-0 right-0 translate-x-1/2 bg-slate-800 border-b-4 border-slate-950 z-20 rounded-b cursor-pointer select-none";
-                        blackKeyNode.style.width = '22px';
-                        blackKeyNode.style.height = '62%';
+                        // Absolute positioning completely disconnects it from white key scaling/moving!
+                        blackKeyNode.className = "black-key-shadow absolute bg-slate-800 border-b-4 border-slate-950 z-20 rounded-b-lg cursor-pointer select-none";
+                        blackKeyNode.style.width = '28px';
+                        blackKeyNode.style.height = '60%';
+                        blackKeyNode.style.top = '0';
+                        blackKeyNode.style.left = `${(index + 1) * wKeyWidth - 14}px`;
 
                         const handleBlackTap = (e) => {
                             e.preventDefault();
                             e.stopPropagation();
                             initAudioEngine();
+                            
+                            blackKeyNode.classList.add('active');
+                            setTimeout(() => blackKeyNode.classList.remove('active'), 150);
+                            
                             onKeyTouch(sharpData);
                         };
                         blackKeyNode.addEventListener('pointerdown', handleBlackTap);
-                        blackKeyNode.addEventListener('touchstart', handleBlackTap, { passive: false });
-                        whiteKeyNode.appendChild(blackKeyNode);
+                        
+                        container.appendChild(blackKeyNode);
                     }
                 }
-                container.appendChild(whiteKeyNode);
             });
         }
 
@@ -405,8 +437,17 @@
             }
         }
 
-        function makeLetterGuess(letter) {
+        // Note Matcher Visual Feedback
+        function makeLetterGuess(letter, btnId) {
             initAudioEngine();
+            
+            // Visual feedback on button press
+            const btn = document.getElementById(btnId);
+            if (btn) {
+                btn.classList.add('pressed');
+                setTimeout(() => btn.classList.remove('pressed'), 200);
+            }
+
             if (letter === selectedNote.label) {
                 const noteObj = PIANO_SCALE.find(n => n.label === letter && n.octave === selectedNote.octave) || selectedNote;
                 playNoteAudio(noteObj.freq);
@@ -424,7 +465,11 @@
             playAudioFx('success');
 
             document.getElementById('mascotPrompt').innerHTML = `<span class="text-emerald-600 font-black">⭐️ Correct! Excellent job!</span>`;
-            setTimeout(chooseNewTarget, 1000);
+            
+            // Don't call chooseNewTarget inside MelodyQuest!
+            if (currentMode !== 'melodyquest') {
+                setTimeout(chooseNewTarget, 1000);
+            }
         }
 
         function scoreMistake() {
@@ -584,8 +629,8 @@
             const currentNoteName = seq[melodyQuestProgress];
             selectedNote = PIANO_SCALE.find(n => n.name === currentNoteName);
 
-            if (selectedNote.octave === 3 && currentClef !== 'bass') setClef('bass');
-            else if (selectedNote.octave >= 4 && currentClef !== 'treble') setClef('treble');
+            if (selectedNote && selectedNote.octave === 3 && currentClef !== 'bass') setClef('bass');
+            else if (selectedNote && selectedNote.octave >= 4 && currentClef !== 'treble') setClef('treble');
             else drawStaff();
 
             const wrapper = document.getElementById('melodySequenceWrapper');
