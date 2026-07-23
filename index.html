@@ -112,18 +112,18 @@
             flex-direction: column;
         }
 
-        /* Piano section with fixed height, shorter than before */
+        /* Piano section – now slightly taller (210px) */
         .piano-section {
-            flex: 0 0 195px;
-            min-height: 160px;
-            max-height: 240px;
+            flex: 0 0 210px;
+            min-height: 170px;
+            max-height: 250px;
         }
 
-        /* On very small screens, make piano a bit shorter */
+        /* On very small screens, make piano a bit shorter but still taller than before */
         @media (max-height: 700px) {
             .piano-section {
-                flex: 0 0 150px;
-                min-height: 120px;
+                flex: 0 0 170px;
+                min-height: 140px;
             }
         }
 
@@ -142,12 +142,16 @@
         .hud-container>* {
             flex-shrink: 0;
         }
-        /* For the flashcard buttons, we want them centered but with a bit of spacing */
         .flashcard-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
             gap: 0.25rem;
             width: 100%;
+        }
+
+        /* Improve black key hover/active feel on touch */
+        .black-key-shadow {
+            touch-action: none;
         }
     </style>
 </head>
@@ -209,7 +213,7 @@
         </div>
     </header>
 
-    <!-- MIDDLE SECTION: takes all remaining space, contains the grid with staff + mascot -->
+    <!-- MIDDLE SECTION: takes all remaining space -->
     <div class="middle-section">
         <div class="grid grid-cols-12 gap-2 h-full overflow-hidden items-start">
 
@@ -283,7 +287,7 @@
         </div>
     </div>
 
-    <!-- PIANO SECTION: fixed height, shorter than before -->
+    <!-- PIANO SECTION: taller keyboard (210px) -->
     <div id="pianoSection" class="piano-section bg-white border-2 border-indigo-100 rounded-xl shadow-sm px-1.5 py-1.5 z-30 overflow-x-auto no-scrollbar relative">
         <div id="pianoContainer" class="flex relative select-none h-full mx-auto" style="min-width: max-content;">
             <!-- Dynamic piano keys generated via JS -->
@@ -472,14 +476,13 @@
         let streakCount = 0;
 
         // ============================================================
-        //  PIANO RENDERER  (black & white keys in separate DOM nodes)
+        //  PIANO RENDERER
         // ============================================================
         function renderPiano() {
             const container = document.getElementById('pianoContainer');
             const pianoSection = document.getElementById('pianoSection');
             if (!container || !pianoSection) return;
 
-            // If piano is hidden, skip rendering to avoid errors
             if (pianoSection.classList.contains('hidden')) {
                 container.innerHTML = '';
                 return;
@@ -503,17 +506,14 @@
                 const handleTap = (e) => {
                     e.preventDefault();
                     initAudioEngine();
-
                     whiteKeyNode.classList.add('active');
                     setTimeout(() => whiteKeyNode.classList.remove('active'), 150);
-
                     onKeyTouch(keyData);
                 };
                 whiteKeyNode.addEventListener('pointerdown', handleTap);
 
                 container.appendChild(whiteKeyNode);
 
-                // Black keys: C#, D#, F#, G#, A#  (skip if C5)
                 const sharpNeighbors = ['C', 'D', 'F', 'G', 'A'];
                 if (sharpNeighbors.includes(keyData.label) && keyData.name !== 'C5') {
                     const sharpData = PIANO_SCALE.find(n => n.name === `${keyData.label}#${keyData.octave}`);
@@ -530,10 +530,8 @@
                             e.preventDefault();
                             e.stopPropagation();
                             initAudioEngine();
-
                             blackKeyNode.classList.add('active');
                             setTimeout(() => blackKeyNode.classList.remove('active'), 150);
-
                             onKeyTouch(sharpData);
                         };
                         blackKeyNode.addEventListener('pointerdown', handleBlackTap);
@@ -568,7 +566,6 @@
                     if (melodyQuestProgress >= melodyQuestActiveSong.sequence.length) {
                         scoreSuccess();
                         melodyQuestProgress = 0;
-                        // Pick a new song automatically after success
                         const songList = SONG_QUESTS[currentLevel] || SONG_QUESTS['level1'];
                         const nextIdx = (songList.indexOf(melodyQuestActiveSong) + 1) % songList.length;
                         melodyQuestActiveSong = songList[nextIdx];
@@ -586,7 +583,6 @@
         // ============================================================
         function makeLetterGuess(letter, btnId) {
             initAudioEngine();
-
             const btn = document.getElementById(btnId);
             if (btn) {
                 btn.classList.add('pressed');
@@ -694,16 +690,11 @@
                 }
             }
 
-            // Note head color
             let fillColor = '#0f172a';
             if (currentMode === 'melodyquest') {
-                if (isActive) {
-                    fillColor = '#db2777'; // pink
-                } else if (isPlayed) {
-                    fillColor = '#cbd5e1'; // gray
-                } else {
-                    fillColor = '#0f172a';
-                }
+                if (isActive) fillColor = '#db2777';
+                else if (isPlayed) fillColor = '#cbd5e1';
+                else fillColor = '#0f172a';
             }
             if (colorOverride) fillColor = colorOverride;
 
@@ -733,7 +724,6 @@
                 ctx.fillText('♯', noteX - 18, noteY + 5);
             }
 
-            // Stem
             ctx.strokeStyle = (currentMode === 'melodyquest' && isPlayed) ? '#cbd5e1' : '#0f172a';
             ctx.lineWidth = 2;
             ctx.beginPath();
@@ -746,7 +736,6 @@
             }
             ctx.stroke();
 
-            // Return the Y position for possible line drawing
             return noteY;
         }
 
@@ -762,7 +751,6 @@
             const midY = canvas.height / 2;
             const startY = midY - (staffSpacing * 2);
 
-            // Draw staff lines
             ctx.strokeStyle = '#818cf8';
             ctx.lineWidth = 1.5;
             for (let i = 0; i < 5; i++) {
@@ -773,7 +761,6 @@
                 ctx.stroke();
             }
 
-            // Clef
             ctx.fillStyle = '#6366f1';
             ctx.font = 'bold 38px Quicksand, Arial';
             ctx.textAlign = 'center';
@@ -788,7 +775,6 @@
                 const startNoteX = 130;
                 const spacingX = 75;
 
-                // First, collect note positions for dotted lines
                 const notePositions = [];
                 for (let i = 0; i < notesPerPhrase; i++) {
                     const seqIdx = startIdx + i;
@@ -804,23 +790,14 @@
                     notePositions.push({ noteData, noteX, noteY, isActive, isPlayed, seqIdx });
                 }
 
-                // Draw dotted lines connecting consecutive notes (except between played and upcoming)
-                // We'll draw lines between all notes in the phrase that are not separated by a gap
+                // Draw dotted guide lines
                 if (notePositions.length > 1) {
                     ctx.save();
                     ctx.setLineDash([4, 6]);
                     ctx.lineWidth = 2;
-                    ctx.strokeStyle = '#a78bfa'; // soft purple
-                    ctx.globalAlpha = 0.6;
                     for (let i = 0; i < notePositions.length - 1; i++) {
                         const from = notePositions[i];
                         const to = notePositions[i + 1];
-                        // Draw if both are either played or active (i.e., not grayed out)
-                        // But we want to show lines for all notes in the phrase, even if some are played and some not.
-                        // However, to avoid clutter, we'll only draw lines between consecutive notes that are either played or active.
-                        // But the user wants to see direction, so draw for all pairs where the second is not before the first.
-                        // Actually, we'll draw for all pairs, but maybe make the line faint for future notes.
-                        // Let's draw lines between all notes in the phrase, using a different style for future notes.
                         const isFuture = (from.seqIdx >= melodyQuestProgress && to.seqIdx >= melodyQuestProgress);
                         ctx.globalAlpha = isFuture ? 0.3 : 0.7;
                         ctx.strokeStyle = isFuture ? '#94a3b8' : '#a78bfa';
@@ -832,13 +809,11 @@
                     ctx.restore();
                 }
 
-                // Now draw the note heads on top
                 notePositions.forEach(({ noteData, noteX, noteY, isActive, isPlayed, seqIdx }) => {
                     drawSingleNoteHead(ctx, noteData, noteX, startY, staffSpacing, isActive, isPlayed);
                 });
 
             } else if (selectedNote) {
-                // Single note for explore/keyfinder/flashcard
                 drawSingleNoteHead(ctx, selectedNote, canvas.width / 2, startY, staffSpacing, false, false);
             }
         }
