@@ -112,14 +112,46 @@
             flex-direction: column;
         }
 
-        /* Piano section – now slightly taller (210px) */
+        /* Piano section – taller keyboard (210px) */
         .piano-section {
             flex: 0 0 210px;
             min-height: 170px;
             max-height: 250px;
+            overflow-x: auto;
+            overflow-y: hidden;
+            scroll-behavior: smooth;
+            -webkit-overflow-scrolling: touch;
         }
 
-        /* On very small screens, make piano a bit shorter but still taller than before */
+        /* Scroll hints for the piano – subtle gradient fade on edges */
+        .piano-section::before,
+        .piano-section::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 30px;
+            pointer-events: none;
+            z-index: 25;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        .piano-section::before {
+            left: 0;
+            background: linear-gradient(to right, rgba(255, 255, 255, 0.6), transparent);
+        }
+        .piano-section::after {
+            right: 0;
+            background: linear-gradient(to left, rgba(255, 255, 255, 0.6), transparent);
+        }
+        /* Show scroll hints only when needed – we'll add a class via JS */
+        .piano-section.scroll-left::before {
+            opacity: 1;
+        }
+        .piano-section.scroll-right::after {
+            opacity: 1;
+        }
+
         @media (max-height: 700px) {
             .piano-section {
                 flex: 0 0 170px;
@@ -149,7 +181,6 @@
             width: 100%;
         }
 
-        /* Improve black key hover/active feel on touch */
         .black-key-shadow {
             touch-action: none;
         }
@@ -213,11 +244,11 @@
         </div>
     </header>
 
-    <!-- MIDDLE SECTION: takes all remaining space -->
+    <!-- MIDDLE SECTION -->
     <div class="middle-section">
         <div class="grid grid-cols-12 gap-2 h-full overflow-hidden items-start">
 
-            <!-- Left: Music Staff Canvas Frame -->
+            <!-- Left: Music Staff -->
             <div class="col-span-7 bg-white border-2 border-indigo-100 rounded-xl shadow-sm p-1.5 flex flex-col overflow-hidden relative h-full min-h-0">
                 <div class="flex items-center justify-between gap-1 border-b border-slate-100 pb-1 shrink-0 px-1 flex-wrap">
                     <div class="flex items-center gap-1">
@@ -228,10 +259,12 @@
                     <div class="flex items-center gap-1">
                         <span class="text-[9px] font-black text-slate-400 uppercase">Level:</span>
                         <select id="rangeSelector" onchange="setLevel(this.value)" class="bg-indigo-50 text-indigo-700 rounded px-1 py-0.5 text-[9px] font-extrabold outline-none">
-                            <option value="level1">Lvl 1 (C4-G4)</option>
-                            <option value="level2">Lvl 2 (C4-C5)</option>
-                            <option value="level3">Lvl 3 (C3-B3)</option>
-                            <option value="level4">Lvl 4 (C3-C5)</option>
+                            <option value="level1">⭐ Level 1 (C4-G4)</option>
+                            <option value="level2">⭐ Level 2 (C4-C5)</option>
+                            <option value="level3">⭐ Level 3 (C3-B3)</option>
+                            <option value="level4">🌟 Level 4 (C3-C5)</option>
+                            <option value="level5">🌟 Level 5 (C2-C5)</option>
+                            <option value="level6">🌟 Level 6 (C2-C6)</option>
                         </select>
                     </div>
                 </div>
@@ -245,9 +278,9 @@
                 </div>
             </div>
 
-            <!-- Right: Mascot & Game HUD Controls -->
+            <!-- Right: Mascot & HUD -->
             <div class="col-span-5 bg-gradient-to-b from-indigo-600 to-purple-600 text-white rounded-xl shadow-sm p-2 flex flex-col overflow-hidden h-full">
-                <!-- Mascot Prompt Box -->
+                <!-- Mascot Prompt -->
                 <div class="bg-white text-slate-800 p-1.5 rounded-lg shadow-sm flex items-center gap-2 shrink-0">
                     <span class="text-xl shrink-0" id="mascotEmoji">🦁</span>
                     <div class="overflow-hidden">
@@ -258,7 +291,7 @@
                     </div>
                 </div>
 
-                <!-- HUD containers – vertically centered -->
+                <!-- Flashcard Controls -->
                 <div id="flashcardControls" class="hidden hud-container mt-1">
                     <p class="text-[9px] font-black text-indigo-200 text-center uppercase">Tap the note name:</p>
                     <div class="flashcard-grid">
@@ -273,11 +306,13 @@
                     </div>
                 </div>
 
+                <!-- Key Finder HUD -->
                 <div id="keyfinderHUD" class="hidden hud-container bg-indigo-950/40 p-2 rounded-lg text-center border border-indigo-300/20 mt-1">
                     <p class="text-[9px] font-black text-indigo-200 uppercase">Key Finder Challenge</p>
                     <p class="text-[11px] font-black text-amber-300 mt-0.5">Find & tap the key on the piano!</p>
                 </div>
 
+                <!-- Melody Quest HUD -->
                 <div id="melodyquestHUD" class="hidden hud-container bg-indigo-950/40 p-1.5 rounded-lg text-center border border-indigo-300/20 mt-1">
                     <p id="songQuestTitle" class="text-[11px] font-black text-yellow-300 truncate">Song Title</p>
                     <div id="melodySequenceWrapper" class="flex items-center justify-center gap-1 py-1 flex-wrap"></div>
@@ -287,8 +322,8 @@
         </div>
     </div>
 
-    <!-- PIANO SECTION: taller keyboard (210px) -->
-    <div id="pianoSection" class="piano-section bg-white border-2 border-indigo-100 rounded-xl shadow-sm px-1.5 py-1.5 z-30 overflow-x-auto no-scrollbar relative">
+    <!-- PIANO SECTION -->
+    <div id="pianoSection" class="piano-section bg-white border-2 border-indigo-100 rounded-xl shadow-sm px-1.5 py-1.5 z-30 relative">
         <div id="pianoContainer" class="flex relative select-none h-full mx-auto" style="min-width: max-content;">
             <!-- Dynamic piano keys generated via JS -->
         </div>
@@ -385,9 +420,21 @@
         }
 
         // ============================================================
-        //  PIANO DATA
+        //  PIANO DATA – Full Chromatic Scale (C2 to C6)
         // ============================================================
         const PIANO_SCALE = [
+            { name: 'C2', label: 'C', octave: 2, isBlack: false, freq: 65.41, trebleStep: -15, bassStep: -5 },
+            { name: 'C#2', label: 'C#', octave: 2, isBlack: true, freq: 69.30, trebleStep: -15, bassStep: -5 },
+            { name: 'D2', label: 'D', octave: 2, isBlack: false, freq: 73.42, trebleStep: -14, bassStep: -4 },
+            { name: 'D#2', label: 'D#', octave: 2, isBlack: true, freq: 77.78, trebleStep: -14, bassStep: -4 },
+            { name: 'E2', label: 'E', octave: 2, isBlack: false, freq: 82.41, trebleStep: -13, bassStep: -3 },
+            { name: 'F2', label: 'F', octave: 2, isBlack: false, freq: 87.31, trebleStep: -12, bassStep: -2 },
+            { name: 'F#2', label: 'F#', octave: 2, isBlack: true, freq: 92.50, trebleStep: -12, bassStep: -2 },
+            { name: 'G2', label: 'G', octave: 2, isBlack: false, freq: 98.00, trebleStep: -11, bassStep: -1 },
+            { name: 'G#2', label: 'G#', octave: 2, isBlack: true, freq: 103.83, trebleStep: -11, bassStep: -1 },
+            { name: 'A2', label: 'A', octave: 2, isBlack: false, freq: 110.00, trebleStep: -10, bassStep: 0 },
+            { name: 'A#2', label: 'A#', octave: 2, isBlack: true, freq: 116.54, trebleStep: -10, bassStep: 0 },
+            { name: 'B2', label: 'B', octave: 2, isBlack: false, freq: 123.47, trebleStep: -9, bassStep: 1 },
             { name: 'C3', label: 'C', octave: 3, isBlack: false, freq: 130.81, trebleStep: -9, bassStep: 3 },
             { name: 'C#3', label: 'C#', octave: 3, isBlack: true, freq: 138.59, trebleStep: -9, bassStep: 3 },
             { name: 'D3', label: 'D', octave: 3, isBlack: false, freq: 146.83, trebleStep: -8, bassStep: 4 },
@@ -412,54 +459,207 @@
             { name: 'A4', label: 'A', octave: 4, isBlack: false, freq: 440.00, trebleStep: 3, bassStep: 15 },
             { name: 'A#4', label: 'A#', octave: 4, isBlack: true, freq: 466.16, trebleStep: 3, bassStep: 15 },
             { name: 'B4', label: 'B', octave: 4, isBlack: false, freq: 493.88, trebleStep: 4, bassStep: 16 },
-            { name: 'C5', label: 'C', octave: 5, isBlack: false, freq: 523.25, trebleStep: 5, bassStep: 17 }
+            { name: 'C5', label: 'C', octave: 5, isBlack: false, freq: 523.25, trebleStep: 5, bassStep: 17 },
+            { name: 'C#5', label: 'C#', octave: 5, isBlack: true, freq: 554.37, trebleStep: 5, bassStep: 17 },
+            { name: 'D5', label: 'D', octave: 5, isBlack: false, freq: 587.33, trebleStep: 6, bassStep: 18 },
+            { name: 'D#5', label: 'D#', octave: 5, isBlack: true, freq: 622.25, trebleStep: 6, bassStep: 18 },
+            { name: 'E5', label: 'E', octave: 5, isBlack: false, freq: 659.25, trebleStep: 7, bassStep: 19 },
+            { name: 'F5', label: 'F', octave: 5, isBlack: false, freq: 698.46, trebleStep: 8, bassStep: 20 },
+            { name: 'F#5', label: 'F#', octave: 5, isBlack: true, freq: 739.99, trebleStep: 8, bassStep: 20 },
+            { name: 'G5', label: 'G', octave: 5, isBlack: false, freq: 783.99, trebleStep: 9, bassStep: 21 },
+            { name: 'G#5', label: 'G#', octave: 5, isBlack: true, freq: 830.61, trebleStep: 9, bassStep: 21 },
+            { name: 'A5', label: 'A', octave: 5, isBlack: false, freq: 880.00, trebleStep: 10, bassStep: 22 },
+            { name: 'A#5', label: 'A#', octave: 5, isBlack: true, freq: 932.33, trebleStep: 10, bassStep: 22 },
+            { name: 'B5', label: 'B', octave: 5, isBlack: false, freq: 987.77, trebleStep: 11, bassStep: 23 },
+            { name: 'C6', label: 'C', octave: 6, isBlack: false, freq: 1046.50, trebleStep: 12, bassStep: 24 }
         ];
 
-        const LEVEL_POOLS = {
-            'level1': ['C4', 'D4', 'E4', 'F4', 'G4'],
-            'level2': ['C4', 'D4', 'E4', 'F4', 'G4', 'A4', 'B4', 'C5'],
-            'level3': ['C3', 'D3', 'E3', 'F3', 'G3', 'A3', 'B3'],
-            'level4': ['C3', 'D3', 'E3', 'F3', 'G3', 'A3', 'B3', 'C4', 'D4', 'E4', 'F4', 'G4', 'A4', 'B4', 'C5']
+        // ============================================================
+        //  LEVEL CONFIGURATION
+        // ============================================================
+        const LEVEL_CONFIG = {
+            'level1': {
+                label: 'Level 1',
+                startNote: 'C4',
+                endNote: 'G4',
+                showBlack: false,
+                defaultClef: 'treble',
+                pool: ['C4', 'D4', 'E4', 'F4', 'G4']
+            },
+            'level2': {
+                label: 'Level 2',
+                startNote: 'C4',
+                endNote: 'C5',
+                showBlack: false,
+                defaultClef: 'treble',
+                pool: ['C4', 'D4', 'E4', 'F4', 'G4', 'A4', 'B4', 'C5']
+            },
+            'level3': {
+                label: 'Level 3',
+                startNote: 'C3',
+                endNote: 'B3',
+                showBlack: false,
+                defaultClef: 'bass',
+                pool: ['C3', 'D3', 'E3', 'F3', 'G3', 'A3', 'B3']
+            },
+            'level4': {
+                label: 'Level 4',
+                startNote: 'C3',
+                endNote: 'C5',
+                showBlack: true,
+                defaultClef: 'treble',
+                pool: ['C3', 'D3', 'E3', 'F3', 'G3', 'A3', 'B3', 'C4', 'D4', 'E4', 'F4', 'G4', 'A4', 'B4', 'C5']
+            },
+            'level5': {
+                label: 'Level 5',
+                startNote: 'C2',
+                endNote: 'C5',
+                showBlack: true,
+                defaultClef: 'treble',
+                pool: ['C2', 'D2', 'E2', 'F2', 'G2', 'A2', 'B2', 'C3', 'D3', 'E3', 'F3', 'G3', 'A3', 'B3', 'C4', 'D4',
+                    'E4', 'F4', 'G4', 'A4', 'B4', 'C5'
+                ]
+            },
+            'level6': {
+                label: 'Level 6',
+                startNote: 'C2',
+                endNote: 'C6',
+                showBlack: true,
+                defaultClef: 'treble',
+                pool: ['C2', 'D2', 'E2', 'F2', 'G2', 'A2', 'B2', 'C3', 'D3', 'E3', 'F3', 'G3', 'A3', 'B3', 'C4', 'D4',
+                    'E4', 'F4', 'G4', 'A4', 'B4', 'C5', 'D5', 'E5', 'F5', 'G5', 'A5', 'B5', 'C6'
+                ]
+            }
         };
 
+        // Get pool for current level
+        function getNotePool() {
+            return LEVEL_CONFIG[currentLevel].pool;
+        }
+
+        // Get keyboard range for current level
+        function getKeyboardRange() {
+            const config = LEVEL_CONFIG[currentLevel];
+            const startIndex = PIANO_SCALE.findIndex(n => n.name === config.startNote);
+            const endIndex = PIANO_SCALE.findIndex(n => n.name === config.endNote);
+            return PIANO_SCALE.slice(startIndex, endIndex + 1);
+        }
+
+        // ============================================================
+        //  SONGS – Full Melodies
+        // ============================================================
         const SONG_QUESTS = {
-            'level1': [
-                { title: "Mary Had a Little Lamb 🐑", sequence: ['E4', 'D4', 'C4', 'D4', 'E4', 'E4', 'E4', 'D4', 'D4',
-                        'D4', 'E4', 'G4', 'G4'
-                    ] },
-                { title: "Hot Cross Buns 🍞", sequence: ['E4', 'D4', 'C4', 'E4', 'D4', 'C4', 'C4', 'C4', 'C4', 'D4', 'D4',
-                        'D4', 'E4', 'D4', 'C4'
-                    ] },
-                { title: "Row Row Row Your Boat 🚣", sequence: ['C4', 'C4', 'C4', 'D4', 'E4', 'E4', 'D4', 'E4', 'F4',
-                        'G4'] },
-                { title: "Jingle Bells 🔔", sequence: ['E4', 'E4', 'E4', 'E4', 'E4', 'E4', 'E4', 'G4', 'C4', 'D4', 'E4'] }
-            ],
-            'level2': [
-                { title: "Twinkle Twinkle Little Star ⭐️", sequence: ['C4', 'C4', 'G4', 'G4', 'A4', 'A4', 'G4', 'F4',
-                        'F4', 'E4', 'E4', 'D4', 'D4', 'C4'
-                    ] },
-                { title: "Ode to Joy 🌸", sequence: ['E4', 'E4', 'F4', 'G4', 'G4', 'F4', 'E4', 'D4', 'C4', 'C4', 'D4',
-                        'E4', 'E4', 'D4', 'D4'
-                    ] },
-                { title: "London Bridge 🌉", sequence: ['G4', 'A4', 'G4', 'F4', 'E4', 'F4', 'G4', 'D4', 'E4', 'F4', 'E4',
-                        'F4', 'G4'
-                    ] },
-                { title: "The Muffin Man 🧁", sequence: ['C4', 'D4', 'E4', 'C4', 'C4', 'D4', 'E4', 'C4', 'E4', 'F4',
-                        'G4'] }
-            ],
-            'level3': [
-                { title: "Low Sea Explorer 🐙", sequence: ['C3', 'C3', 'G3', 'G3', 'A3', 'A3', 'G3', 'F3', 'F3', 'E3',
-                        'E3', 'D3', 'D3', 'C3'
-                    ] },
-                { title: "Little Star Below 🌙", sequence: ['C3', 'C3', 'G3', 'G3', 'A3', 'A3', 'G3', 'F3', 'F3', 'E3',
-                        'E3', 'D3', 'D3', 'C3'
-                    ] }
-            ],
-            'level4': [
-                { title: "Frere Jacques 🔔", sequence: ['C4', 'D4', 'E4', 'C4', 'C4', 'D4', 'E4', 'C4', 'E4', 'F4',
-                        'G4'] },
-                { title: "Amazing Grace ✨", sequence: ['G4', 'C5', 'E4', 'C5', 'E4', 'D4', 'C4', 'A3', 'G4'] }
-            ]
+            'level1': [{
+                title: "Hot Cross Buns 🎵",
+                sequence: ['E4', 'D4', 'C4', 'E4', 'D4', 'C4', 'C4', 'C4', 'C4', 'D4', 'D4', 'D4', 'E4', 'D4', 'C4']
+            }, {
+                title: "Mary Had a Little Lamb 🐑",
+                sequence: ['E4', 'D4', 'C4', 'D4', 'E4', 'E4', 'E4', 'D4', 'D4', 'D4', 'E4', 'G4', 'G4', 'E4', 'D4', 'C4',
+                    'D4', 'E4', 'E4', 'E4', 'E4', 'D4', 'D4', 'E4', 'D4', 'C4'
+                ]
+            }, {
+                title: "Row Row Row Your Boat 🚣",
+                sequence: ['C4', 'C4', 'C4', 'D4', 'E4', 'E4', 'D4', 'E4', 'F4', 'G4', 'G4', 'F4', 'E4', 'D4', 'C4', 'G4',
+                    'F4', 'E4', 'D4', 'C4'
+                ]
+            }, {
+                title: "Lightly Row 🌊",
+                sequence: ['C4', 'C4', 'E4', 'E4', 'G4', 'G4', 'E4', 'F4', 'F4', 'E4', 'E4', 'D4', 'D4', 'C4']
+            }],
+            'level2': [{
+                title: "Twinkle Twinkle Little Star ⭐",
+                sequence: ['C4', 'C4', 'G4', 'G4', 'A4', 'A4', 'G4', 'F4', 'F4', 'E4', 'E4', 'D4', 'D4', 'C4', 'G4', 'G4',
+                    'F4', 'F4', 'E4', 'E4', 'D4', 'G4', 'G4', 'F4', 'F4', 'E4', 'E4', 'D4', 'C4', 'C4', 'G4', 'G4', 'A4',
+                    'A4', 'G4', 'F4', 'F4', 'E4', 'E4', 'D4', 'D4', 'C4'
+                ]
+            }, {
+                title: "Ode to Joy 🌸",
+                sequence: ['E4', 'E4', 'F4', 'G4', 'G4', 'F4', 'E4', 'D4', 'C4', 'C4', 'D4', 'E4', 'E4', 'D4', 'D4', 'E4',
+                    'E4', 'F4', 'G4', 'G4', 'F4', 'E4', 'D4', 'C4', 'C4', 'D4', 'E4', 'D4', 'C4', 'C4'
+                ]
+            }, {
+                title: "London Bridge 🌉",
+                sequence: ['G4', 'A4', 'G4', 'F4', 'E4', 'F4', 'G4', 'D4', 'E4', 'F4', 'E4', 'F4', 'G4', 'G4', 'A4', 'G4',
+                    'F4', 'E4', 'F4', 'G4', 'D4', 'E4', 'F4', 'E4', 'F4', 'G4'
+                ]
+            }, {
+                title: "When the Saints 🎺",
+                sequence: ['C4', 'C4', 'E4', 'F4', 'G4', 'G4', 'G4', 'F4', 'E4', 'D4', 'C4', 'E4', 'E4', 'F4', 'G4', 'G4',
+                    'G4', 'F4', 'E4', 'D4', 'C4'
+                ]
+            }],
+            'level3': [{
+                title: "Frère Jacques (Bass) 🎵",
+                sequence: ['C3', 'D3', 'E3', 'C3', 'C3', 'D3', 'E3', 'C3', 'E3', 'F3', 'G3', 'E3', 'F3', 'G3', 'G3', 'A3',
+                    'G3', 'F3', 'E3', 'C3', 'G3', 'A3', 'G3', 'F3', 'E3', 'C3', 'C3', 'G3', 'C3', 'C3', 'G3', 'C3'
+                ]
+            }, {
+                title: "Three Blind Mice 🐭",
+                sequence: ['E3', 'D3', 'C3', 'E3', 'D3', 'C3', 'G3', 'G3', 'G3', 'A3', 'A3', 'A3', 'G3', 'F3', 'E3', 'D3',
+                    'C3'
+                ]
+            }, {
+                title: "Old MacDonald (Bass) 🐄",
+                sequence: ['C3', 'C3', 'C3', 'G3', 'A3', 'A3', 'G3', 'E3', 'E3', 'D3', 'D3', 'C3', 'G3', 'G3', 'G3', 'G3',
+                    'A3', 'A3', 'G3', 'E3', 'E3', 'D3', 'D3', 'C3'
+                ]
+            }, {
+                title: "When the Saints (Bass) 🎺",
+                sequence: ['C3', 'C3', 'E3', 'F3', 'G3', 'G3', 'G3', 'F3', 'E3', 'D3', 'C3', 'E3', 'E3', 'F3', 'G3', 'G3',
+                    'G3', 'F3', 'E3', 'D3', 'C3'
+                ]
+            }],
+            'level4': [{
+                title: "Ode to Joy (G Major) 🎶",
+                sequence: ['G4', 'G4', 'A4', 'B4', 'B4', 'A4', 'G4', 'F#4', 'E4', 'E4', 'F#4', 'G4', 'G4', 'F#4', 'F#4',
+                    'G4', 'G4', 'A4', 'B4', 'B4', 'A4', 'G4', 'F#4', 'E4', 'E4', 'F#4', 'G4', 'F#4', 'E4', 'E4'
+                ]
+            }, {
+                title: "London Bridge (G Major) 🌉",
+                sequence: ['G4', 'A4', 'G4', 'F#4', 'E4', 'F#4', 'G4', 'D4', 'E4', 'F#4', 'E4', 'F#4', 'G4', 'G4', 'A4',
+                    'G4', 'F#4', 'E4', 'F#4', 'G4', 'D4', 'E4', 'F#4', 'E4', 'F#4', 'G4'
+                ]
+            }, {
+                title: "When the Saints (G Major) 🎺",
+                sequence: ['G4', 'G4', 'B4', 'C5', 'D5', 'D5', 'D5', 'C5', 'B4', 'A4', 'G4', 'B4', 'B4', 'C5', 'D5', 'D5',
+                    'D5', 'C5', 'B4', 'A4', 'G4'
+                ]
+            }, {
+                title: "Amazing Grace (G Major) ✨",
+                sequence: ['G4', 'B4', 'D5', 'B4', 'G4', 'G4', 'B4', 'D5', 'B4', 'A4', 'G4', 'F#4', 'E4', 'F#4', 'G4']
+            }],
+            'level5': [{
+                title: "Scarborough Fair 🌿",
+                sequence: ['C4', 'C4', 'D4', 'E4', 'F4', 'E4', 'D4', 'C4', 'E4', 'E4', 'F4', 'G4', 'A4', 'G4', 'F4', 'E4',
+                    'D4', 'C4', 'D4', 'E4', 'F4', 'E4', 'D4', 'C4'
+                ]
+            }, {
+                title: "Can Can (Simplified) 💃",
+                sequence: ['C4', 'E4', 'G4', 'C5', 'G4', 'E4', 'C4', 'F4', 'A4', 'C5', 'A4', 'F4', 'C4', 'E4', 'G4', 'B4',
+                    'G4', 'E4', 'C4'
+                ]
+            }, {
+                title: "Greensleeves 🍃",
+                sequence: ['E4', 'G4', 'A4', 'B4', 'C5', 'B4', 'A4', 'G4', 'E4', 'F4', 'G4', 'A4', 'G4', 'E4', 'D4', 'C4']
+            }],
+            'level6': [{
+                title: "Fur Elise (Excerpt) 🎹",
+                sequence: ['E5', 'D#5', 'E5', 'D#5', 'E5', 'B4', 'D5', 'C5', 'A4', 'C4', 'E4', 'A4', 'B4', 'E4', 'G#4',
+                    'B4', 'C5', 'E4', 'E5', 'D#5', 'E5', 'D#5', 'E5', 'B4', 'D5', 'C5', 'A4', 'C4', 'E4', 'A4', 'B4',
+                    'C5', 'D5', 'E5'
+                ]
+            }, {
+                title: "Prelude in C (Bach) 🎼",
+                sequence: ['C4', 'E4', 'G4', 'C5', 'E4', 'G4', 'B4', 'D5', 'G4', 'B4', 'D5', 'G5', 'A4', 'C5', 'E5', 'A5',
+                    'F4', 'A4', 'C5', 'F5', 'G4', 'B4', 'D5', 'G5', 'C5', 'E5', 'G5', 'C6'
+                ]
+            }, {
+                title: "The Entertainer 🎭",
+                sequence: ['C4', 'E4', 'G4', 'C5', 'E4', 'G4', 'B4', 'D5', 'C4', 'E4', 'G4', 'C5', 'E4', 'G4', 'B4', 'D5',
+                    'D4', 'F4', 'A4', 'D5', 'F4', 'A4', 'C5', 'E5', 'D4', 'F4', 'A4', 'D5', 'F4', 'A4', 'C5', 'E5', 'C4',
+                    'E4', 'G4', 'C5', 'E4', 'G4', 'B4', 'D5'
+                ]
+            }]
         };
 
         // ============================================================
@@ -471,12 +671,12 @@
         let selectedNote = PIANO_SCALE.find(n => n.name === 'C4');
         let melodyQuestActiveSong = SONG_QUESTS['level1'][0];
         let melodyQuestProgress = 0;
-        const notesPerPhrase = 4;
+        const notesPerPhrase = 6;
         let starCount = 0;
         let streakCount = 0;
 
         // ============================================================
-        //  PIANO RENDERER
+        //  PIANO RENDERER – Adaptive to Level
         // ============================================================
         function renderPiano() {
             const container = document.getElementById('pianoContainer');
@@ -490,11 +690,32 @@
 
             container.innerHTML = '';
 
-            const whiteKeys = PIANO_SCALE.filter(n => !n.isBlack);
+            // Get the keys for this level
+            const levelKeys = getKeyboardRange();
+            const config = LEVEL_CONFIG[currentLevel];
+            const showBlack = config.showBlack;
+
+            // Filter white keys
+            const whiteKeys = levelKeys.filter(n => !n.isBlack);
+
+            // Calculate key width to fit without scrolling if possible
             const availableWidth = Math.max(320, pianoSection.clientWidth - 12);
-            const wKeyWidth = Math.max(44, availableWidth / whiteKeys.length);
-            container.style.width = `${whiteKeys.length * wKeyWidth}px`;
+            const minKeyWidth = 30;
+            const maxKeyWidth = 60;
+            let wKeyWidth = Math.min(maxKeyWidth, Math.max(minKeyWidth, availableWidth / whiteKeys.length));
+
+            // If we have 29 white keys (Level 6), 29 * 30 = 870px, which fits in 1024px with room for black keys.
+            // But black keys need space too. Let's check total width.
+            const totalWhiteWidth = whiteKeys.length * wKeyWidth;
+            // Black keys are positioned between white keys. We need to make sure they fit.
+            // We'll set the container width to the total width of white keys + some padding for black keys.
+            // Actually, black keys are absolutely positioned, so we just need to set the container width to fit all white keys.
+            // The black keys will overlay the white keys.
+            container.style.width = `${totalWhiteWidth}px`;
             container.style.minWidth = '100%';
+
+            // Update scroll hints
+            updateScrollHints();
 
             whiteKeys.forEach((keyData, index) => {
                 const whiteKeyNode = document.createElement('div');
@@ -514,33 +735,51 @@
 
                 container.appendChild(whiteKeyNode);
 
-                const sharpNeighbors = ['C', 'D', 'F', 'G', 'A'];
-                if (sharpNeighbors.includes(keyData.label) && keyData.name !== 'C5') {
-                    const sharpData = PIANO_SCALE.find(n => n.name === `${keyData.label}#${keyData.octave}`);
-                    if (sharpData) {
-                        const blackKeyNode = document.createElement('div');
-                        blackKeyNode.className =
-                            `black-key-shadow absolute bg-slate-800 border-b-4 border-slate-950 z-20 rounded-b-lg cursor-pointer select-none`;
-                        blackKeyNode.style.width = '28px';
-                        blackKeyNode.style.height = '60%';
-                        blackKeyNode.style.top = '0';
-                        blackKeyNode.style.left = `${(index + 1) * wKeyWidth - 14}px`;
+                // Black keys – only if showBlack is true
+                if (showBlack) {
+                    const sharpNeighbors = ['C', 'D', 'F', 'G', 'A'];
+                    if (sharpNeighbors.includes(keyData.label) && keyData.name !== 'C6') {
+                        const sharpName = `${keyData.label}#${keyData.octave}`;
+                        const sharpData = levelKeys.find(n => n.name === sharpName);
+                        if (sharpData) {
+                            const blackKeyNode = document.createElement('div');
+                            blackKeyNode.className =
+                                `black-key-shadow absolute bg-slate-800 border-b-4 border-slate-950 z-20 rounded-b-lg cursor-pointer select-none`;
+                            blackKeyNode.style.width = `${Math.min(28, wKeyWidth * 0.65)}px`;
+                            blackKeyNode.style.height = '60%';
+                            blackKeyNode.style.top = '0';
+                            blackKeyNode.style.left = `${(index + 1) * wKeyWidth - (Math.min(28, wKeyWidth * 0.65) / 2)}px`;
 
-                        const handleBlackTap = (e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            initAudioEngine();
-                            blackKeyNode.classList.add('active');
-                            setTimeout(() => blackKeyNode.classList.remove('active'), 150);
-                            onKeyTouch(sharpData);
-                        };
-                        blackKeyNode.addEventListener('pointerdown', handleBlackTap);
+                            const handleBlackTap = (e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                initAudioEngine();
+                                blackKeyNode.classList.add('active');
+                                setTimeout(() => blackKeyNode.classList.remove('active'), 150);
+                                onKeyTouch(sharpData);
+                            };
+                            blackKeyNode.addEventListener('pointerdown', handleBlackTap);
 
-                        container.appendChild(blackKeyNode);
+                            container.appendChild(blackKeyNode);
+                        }
                     }
                 }
             });
         }
+
+        function updateScrollHints() {
+            const pianoSection = document.getElementById('pianoSection');
+            if (!pianoSection) return;
+
+            const canScrollLeft = pianoSection.scrollLeft > 0;
+            const canScrollRight = pianoSection.scrollLeft < pianoSection.scrollWidth - pianoSection.clientWidth - 1;
+
+            pianoSection.classList.toggle('scroll-left', canScrollLeft);
+            pianoSection.classList.toggle('scroll-right', canScrollRight);
+        }
+
+        // Listen to scroll events to update hints
+        document.getElementById('pianoSection').addEventListener('scroll', updateScrollHints);
 
         // ============================================================
         //  KEY TOUCH HANDLER
@@ -624,7 +863,7 @@
         }
 
         function chooseNewTarget() {
-            const pool = LEVEL_POOLS[currentLevel];
+            const pool = getNotePool();
             const randName = pool[Math.floor(Math.random() * pool.length)];
             selectedNote = PIANO_SCALE.find(n => n.name === randName);
 
@@ -652,8 +891,19 @@
         function setLevel(lvl) {
             currentLevel = lvl;
             document.getElementById('rangeSelector').value = lvl;
+
+            // Auto-set clef based on level config
+            const config = LEVEL_CONFIG[lvl];
+            if (config.defaultClef && config.defaultClef !== currentClef) {
+                setClef(config.defaultClef);
+            }
+
+            // Re-render piano for new range
+            renderPiano();
+
             if (currentMode === 'melodyquest') {
-                melodyQuestActiveSong = (SONG_QUESTS[currentLevel] || SONG_QUESTS['level1'])[0];
+                const songList = SONG_QUESTS[currentLevel] || SONG_QUESTS['level1'];
+                melodyQuestActiveSong = songList[0];
                 melodyQuestProgress = 0;
                 document.getElementById('songQuestTitle').innerText = melodyQuestActiveSong.title;
                 highlightMelodyNextStep();
@@ -911,7 +1161,8 @@
             } else if (mode === 'melodyquest') {
                 document.getElementById('mascotPrompt').innerHTML = "Play each note on the keyboard to complete the song!";
                 melodyQuestProgress = 0;
-                melodyQuestActiveSong = (SONG_QUESTS[currentLevel] || SONG_QUESTS['level1'])[0];
+                const songList = SONG_QUESTS[currentLevel] || SONG_QUESTS['level1'];
+                melodyQuestActiveSong = songList[0];
                 document.getElementById('songQuestTitle').innerText = melodyQuestActiveSong.title;
                 highlightMelodyNextStep();
             }
@@ -935,6 +1186,8 @@
         }
 
         window.addEventListener('resize', handleResize);
+        // Also update on orientation change
+        window.addEventListener('orientationchange', handleResize);
 
         // ============================================================
         //  INIT
