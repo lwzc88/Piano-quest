@@ -690,10 +690,8 @@
             const pianoSec = document.getElementById('pianoSection');
             if (mode === 'flashcards') {
                 pianoSec.classList.add('hidden');
-                document.getElementById('topGameArea').classList.add('flex-1', 'min-h-0');
             } else {
                 pianoSec.classList.remove('hidden');
-                document.getElementById('topGameArea').classList.remove('flex-1', 'min-h-0');
             }
 
             document.getElementById('flashcardControls').classList.toggle('hidden', mode !== 'flashcards');
